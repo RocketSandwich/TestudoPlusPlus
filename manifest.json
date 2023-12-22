@@ -1,0 +1,34 @@
+{
+    "name": "Testudo Reviews",
+    "version": "0.1.0",
+    "description": "A streamlined process for reviewing course and professor evaluations using the PlanetTerp API directly integrated as a browser extension.",
+    "permissions": ["tabs"],
+    "host_permissions": ["https://*.testudo.umd.edu/soc/*"],
+    "background": {
+        "service_worker": "background.js"
+    },
+    "content_scripts": [
+        {
+            "matches": ["https://*.testudo.umd.edu/soc/*"],
+            "js": ["contentScript.js"]
+        }
+    ],
+    "web_accessible_resources": [
+        {
+            "resources": [
+                "assets/stuff.png",
+                "assets/moreStuff.png"
+            ],
+            "matches": ["https://*.testudo.umd.edu/soc/*"]
+        }
+    ],
+    "action": {
+        "default_icon": {
+            "16": "assets/ext-icon.png",
+            "32": "assets/MoreExt-icon.png"
+        },
+        "default_title": "Testudo Reviews",
+        "default_popup": "popup.html"
+    },
+    "manifest_version": 3
+}
