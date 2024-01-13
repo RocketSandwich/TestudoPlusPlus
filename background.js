@@ -1,12 +1,14 @@
-chrome.tabs.onUpdated.addListener((tabId, tab) => {
-    if(tab.url) {
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+    if(changeInfo.status === 'complete' && tab.url) {
         // Specific query 
         if(tab.url.match(/testudo\.umd\.edu\/soc\/(?:gen-ed\/|core\/)?search/)) {
             const queryParams = tab.url.split("?")[1];
             const urlParams = new URLSearchParams(queryParams);
-            urlParams.type = "query";
+            // urlParams.type = "query";
+            console.log(urlParams);
 
-            chrome.tabs.sendMessage(tabId, urlParams);
+            chrome.tabs.sendMessage(tabId, {a:1, b:2});
+            console.log("After msg sent")
             /*
             https://app.testudo.umd.edu/soc/search?
                 courseId=
@@ -46,6 +48,8 @@ chrome.tabs.onUpdated.addListener((tabId, tab) => {
         } else if(tab.url.match(/testudo\.umd\.edu\/soc\/core\/(\d{6})\/([A-Z]{1,2})$/)) {
 
         // Browsing all courses
-        } else if(tab.url.match(/testudo\.umd\.edu\/soc\/(\d{6})\/([A-Z]{4})$/))
+        } else if(tab.url.match(/testudo\.umd\.edu\/soc\/(\d{6})\/([A-Z]{4})$/)) {
+
+        }
     }
 });
