@@ -4,7 +4,6 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
         if(tab.url.match(/testudo\.umd\.edu\/soc\/(?:gen-ed\/|core\/)?search/)) {
             const queryParams = tab.url.split("?")[1];
             const urlParams = new URLSearchParams(queryParams);
-            // urlParams.type = "query";
             console.log(urlParams);
 
             chrome.tabs.sendMessage(tabId, {a:1, b:2});
