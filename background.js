@@ -4,10 +4,8 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
         if(tab.url.match(/testudo\.umd\.edu\/soc\/(?:gen-ed\/|core\/)?search/)) {
             const queryParams = tab.url.split("?")[1];
             const urlParams = new URLSearchParams(queryParams);
-            console.log(urlParams);
 
-            chrome.tabs.sendMessage(tabId, {a:1, b:2});
-            console.log("After msg sent")
+            chrome.tabs.sendMessage(tabId, {webpage: "testudo"});
             /*
             https://app.testudo.umd.edu/soc/search?
                 courseId=
@@ -49,6 +47,10 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
         // Browsing all courses
         } else if(tab.url.match(/testudo\.umd\.edu\/soc\/(\d{6})\/([A-Z]{4})$/)) {
 
+        // Professor links
+        } else if(tab.url.match(/planetterp.com\/professor/)) {
+            const name = tab.url.split("_")[0].split("professor/")[1];
+            chrome.tabs.sendMessage(tabId, {webpage: "planetterp", name: name});
         }
     }
 });
