@@ -18,7 +18,7 @@
         }
 
         PTLink.target = "_blank";
-        PTLink.className = "reviews-btn";
+        PTLink.className = "ptreviews-btn";
         PTLink.title = "View student reviews/details";
 
         const imgElem = document.createElement("img");
@@ -37,7 +37,7 @@
         RMPLink.href = "https://www.ratemyprofessors.com/search/professors/1270?q=" + encodeURIComponent(name);
     
         RMPLink.target = "_blank";
-        RMPLink.className = "reviews-btn";
+        RMPLink.className = "rmpreviews-btn";
         RMPLink.title = "View student reviews/details";
 
         const imgElem = document.createElement("img");
@@ -58,21 +58,51 @@
 
     /* Insert professor links */
     const setProfLinks = (thisCourse) => {
+        // Gets *updated* element
         sections = document.getElementById(thisCourse).getElementsByClassName("section-instructors");
+        // console.log(thisCourse);
+        // console.log(document.getElementById(thisCourse));
+        // console.log(sections.length);
+        // console.log(sections[0]);
+        // hasLinks = sections[0].getElementsByClassName("rmpreviews-btn").length > 0;
 
-        // Per section
-        for(let i = 0; i < sections.length; i++) {
-            sectionProfs = sections[i].getElementsByClassName("section-instructor");
+        // if(!hasLinks) {
 
-            // Per section professor (co-teaching)
-            for(let j = 0; j < sectionProfs.length; j++) {
-                if(j > 0) {
-                    setBreak(sectionProfs[j]);
+            // Per section
+            for(let i = 0; i < sections.length; i++) {
+                sectionProfs = sections[i].getElementsByClassName("section-instructor");
+
+                // Per section professor (co-teaching)
+                for(let j = 0; j < sectionProfs.length; j++) {
+                    if(j > 0) {
+                        setBreak(sectionProfs[j]);
+                    }
+                    setPTLink(sectionProfs[j], "professor");
+                    setRMPLink(sectionProfs[j]);
                 }
-                setPTLink(sectionProfs[j], "professor");
-                setRMPLink(sectionProfs[j]);
             }
-        }
+        // }
+    };
+
+    /* User clicks "show all sections" button */
+    const allSectionsExpandBtn = (courses) => {
+
+        fn = (crses) => {
+            // Per course
+            for(let i = 0; i < crses.length; i++) {
+                thisCourse = crses[i];
+                courseId = thisCourse.getElementsByClassName("course-id")[0];
+                hasLinks = thisCourse.getElementsByClassName("rmpreviews-btn").length > 0;
+                if(!hasLinks) {
+                    setProfLinks(courseId.textContent);
+                }
+            }
+        };
+        
+        sectionsBtn = document.getElementById("show-all-sections-button");
+        sectionsBtn.addEventListener("click", () => {
+            setTimeout(fn, 600, courses);
+        }, {once: true});
     };
 
     /* Finds right place to inject content on page */
@@ -100,27 +130,36 @@
             }
         } else if(obj.webpage === 'testudo') {
             courses = document.getElementsByClassName("course");
+            allSectionsExpandBtn(courses);
 
             // Per course
             for(let i = 0; i < courses.length; i++) {
                 thisCourse = courses[i];
                 courseId = thisCourse.getElementsByClassName("course-id")[0];
+                expanded = thisCourse.getElementsByClassName("section-instructor").length > 0;
                 setPTLink(courseId, "course");
 
+                // Initial instructor links
+                if(expanded) {
+                    setProfLinks(courseId.textContent);
+                }
+
                 // Establishing event listeners for section toggle
-                sectionToggle = thisCourse.getElementsByClassName("toggle-sections-link")[0];
-                notExpanded = !(thisCourse.getElementsByClassName("section-instructor").length > 0);
-                if(sectionToggle && notExpanded) {
+                hasSections = thisCourse.getElementsByClassName("toggle-sections-link")[0];
+                hasLinks = thisCourse.getElementsByClassName("rmpreviews-btn").length > 0;
+                if(hasSections && !hasLinks) {
                     (function(name) {
-                        sectionToggle.addEventListener("click", () => {
-                            // console.log("Clicked section button!");
-                            setTimeout(setProfLinks, 500, name);
+                        hasSections.addEventListener("click", () => {
+                            console.log("Clicked section button!");
+                            // Redundant !hasLinks check is necessary b/c link status may have changed
+                            //      within interval of when eventListener was established and when it is triggered 
+                            hasLinks2 = document.getElementById(name).getElementsByClassName("rmpreviews-btn").length > 0;
+                            if(!hasLinks2) {
+                                setTimeout(setProfLinks, 500, name);
+                            }
                         }, {once: true});
                     })(courseId.textContent);
                 }
-
-                // Initial instructor links (if already expanded)
-                setProfLinks(courseId.textContent);
             }
         }
     });
