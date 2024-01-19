@@ -7,36 +7,71 @@
         return resultString;
     }
 
-    /* Injects icon link */
-    const setLink = (subdir, type) => {
+    /* Injects PT link */
+    const setPTLink = (subdir, type) => {
         const name = subdir.textContent;
-        const anchorElem = document.createElement("a");
+        const PTLink = document.createElement("a");
         if(type == "course") {
-            anchorElem.href = "https://planetterp.com/" + type + "/" + name;
+            PTLink.href = "https://planetterp.com/" + type + "/" + name;
         } else {
-            anchorElem.href = "https://planetterp.com/" + type + "/" + swapWords(name);
+            PTLink.href = "https://planetterp.com/" + type + "/" + swapWords(name);
         }
 
-        anchorElem.target = "_blank";
-        anchorElem.className = "reviews-btn";
-        anchorElem.title = "View student reviews/details";
+        PTLink.target = "_blank";
+        PTLink.className = "reviews-btn";
+        PTLink.title = "View student reviews/details";
 
         const imgElem = document.createElement("img");
-        imgElem.src = chrome.runtime.getURL("assets/logo.png");
+        imgElem.src = chrome.runtime.getURL("assets/PT_logo.png");
         imgElem.alt = "PlanetTerp";
-        (type == "course") ? (imgElem.style.width = "40%") : (imgElem.style.width = "7%", imgElem.style.paddingRight = "3px");
+        (type == "course") ? (imgElem.style.width = "40%") : (imgElem.style.width = "7%", imgElem.style.paddingRight = "5px");
 
-        anchorElem.appendChild(imgElem);
-        (type == "course") ? (subdir.appendChild(anchorElem)) : (subdir.parentNode.insertBefore(anchorElem, subdir));
+        PTLink.appendChild(imgElem);
+        (type == "course") ? (subdir.appendChild(PTLink)) : (subdir.parentNode.insertBefore(PTLink, subdir));
+    };
+
+    /* Injects RMP link */
+    const setRMPLink = (subdir) => {
+        const name = subdir.textContent;
+        const RMPLink = document.createElement("a");
+        RMPLink.href = "https://www.ratemyprofessors.com/search/professors/1270?q=" + encodeURIComponent(name);
+    
+        RMPLink.target = "_blank";
+        RMPLink.className = "reviews-btn";
+        RMPLink.title = "View student reviews/details";
+
+        const imgElem = document.createElement("img");
+        imgElem.src = chrome.runtime.getURL("assets/RMP_logo.png");
+        imgElem.alt = "RateMyProfessor";
+        imgElem.style.width = "9%";
+        imgElem.style.paddingRight = "5px";
+
+        RMPLink.appendChild(imgElem);
+        subdir.parentNode.insertBefore(RMPLink, subdir);
+    };
+
+    /* Injects break tag */
+    const setBreak = (elem) => {
+        const RMPLink = document.createElement("br");
+        elem.parentNode.insertBefore(RMPLink, elem);
     };
 
     /* Insert professor links */
     const setProfLinks = (thisCourse) => {
-        sectionProfs = document.getElementById(thisCourse).getElementsByClassName("section-instructor");
+        sections = document.getElementById(thisCourse).getElementsByClassName("section-instructors");
 
-        // Per instructor
-        for(let j = 0; j < sectionProfs.length; j++) {
-            setLink(sectionProfs[j], "professor");
+        // Per section
+        for(let i = 0; i < sections.length; i++) {
+            sectionProfs = sections[i].getElementsByClassName("section-instructor");
+
+            // Per section professor (co-teaching)
+            for(let j = 0; j < sectionProfs.length; j++) {
+                if(j > 0) {
+                    setBreak(sectionProfs[j]);
+                }
+                setPTLink(sectionProfs[j], "professor");
+                setRMPLink(sectionProfs[j]);
+            }
         }
     };
 
@@ -65,7 +100,7 @@
             for(let i = 0; i < courses.length; i++) {
                 thisCourse = courses[i];
                 courseId = thisCourse.getElementsByClassName("course-id")[0];
-                setLink(courseId, "course");
+                setPTLink(courseId, "course");
 
                 // Establishing event listeners for section toggle
                 sectionToggle = thisCourse.getElementsByClassName("toggle-sections-link")[0];
