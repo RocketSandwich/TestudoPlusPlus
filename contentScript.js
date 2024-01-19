@@ -42,7 +42,7 @@
 
         const imgElem = document.createElement("img");
         imgElem.src = chrome.runtime.getURL("assets/RMP_logo.png");
-        imgElem.alt = "RateMyProfessor";
+        imgElem.alt = "ratemyprofessors";
         imgElem.style.width = "9%";
         imgElem.style.paddingRight = "5px";
 
@@ -93,7 +93,12 @@
             if(fourZeroFour) {
                 window.open('https://planetterp.com/professor/' + obj.name, "_self");
             }
-        } else {
+        } else if(obj.webpage === 'ratemyprofessors') {
+            teachers = document.getElementsByClassName("TeacherCard__StyledTeacherCard-syjs0d-0");
+            if(teachers.length == 1 && teachers[0].getElementsByClassName("CardSchool__School-sc-19lmz2k-1")[0].textContent === "University of Maryland") {
+                window.open(teachers[0].href, "_self");
+            }
+        } else if(obj.webpage === 'testudo') {
             courses = document.getElementsByClassName("course");
 
             // Per course

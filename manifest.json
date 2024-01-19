@@ -5,21 +5,29 @@
     "permissions": ["tabs"],
     "host_permissions": [
         "https://*.testudo.umd.edu/*",
-        "https://planetterp.com/*"
+        "https://planetterp.com/*",
+        "https://ratemyprofessors.com/*"
     ],
     "background": {
         "service_worker": "background.js"
     },
     "content_scripts": [
         {
-            "matches": ["https://*.testudo.umd.edu/*", "https://planetterp.com/*"],
+            "matches": [
+                "https://*.testudo.umd.edu/*",
+                "https://planetterp.com/*",
+                "https://www.ratemyprofessors.com/*"
+            ],
             "js": ["contentScript.js"]
         }
     ],
     "web_accessible_resources": [
         {
-            "resources": ["assets/PT_logo.png", "assets/RMP_logo.png"],
-            "matches": ["https://*.testudo.umd.edu/*", "https://planetterp.com/*"]
+            "resources": [
+                "assets/PT_logo.png",
+                "assets/RMP_logo.png"
+            ],
+            "matches": ["https://*.testudo.umd.edu/*"]
         }
     ],
     "action": {

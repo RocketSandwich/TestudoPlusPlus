@@ -47,10 +47,15 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
         // Browsing all courses
         } else if(tab.url.match(/testudo\.umd\.edu\/soc\/(\d{6})\/([A-Z]{4})$/)) {
 
-        // Professor links
+        // PT links
         } else if(tab.url.match(/planetterp.com\/professor/)) {
             const name = tab.url.split("_")[0].split("professor/")[1];
             chrome.tabs.sendMessage(tabId, {webpage: "planetterp", name: name});
+
+        // RMP links
+        } else if(tab.url.match(/ratemyprofessors.com\/search\/professors\/1270/)) {
+            console.log("Matched RMP link")
+            chrome.tabs.sendMessage(tabId, {webpage: "ratemyprofessors"});
         }
     }
 });
