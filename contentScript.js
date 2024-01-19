@@ -19,12 +19,14 @@
 
         PTLink.target = "_blank";
         PTLink.className = "ptreviews-btn";
-        PTLink.title = "View student reviews/details";
+        PTLink.title = "PlanetTerp Reviews";
 
         const imgElem = document.createElement("img");
         imgElem.src = chrome.runtime.getURL("assets/PT_logo.png");
         imgElem.alt = "PlanetTerp";
         (type == "course") ? (imgElem.style.width = "40%") : (imgElem.style.width = "7%", imgElem.style.paddingRight = "5px");
+        imgElem.addEventListener('mouseover', () => {imgElem.style.filter = 'grayscale(50%)'});
+        imgElem.addEventListener('mouseout', () => {imgElem.style.filter = 'grayscale(0%)'});
 
         PTLink.appendChild(imgElem);
         (type == "course") ? (subdir.appendChild(PTLink)) : (subdir.parentNode.insertBefore(PTLink, subdir));
@@ -38,13 +40,15 @@
     
         RMPLink.target = "_blank";
         RMPLink.className = "rmpreviews-btn";
-        RMPLink.title = "View student reviews/details";
+        RMPLink.title = "RateMyProfessor Reviews";
 
         const imgElem = document.createElement("img");
         imgElem.src = chrome.runtime.getURL("assets/RMP_logo.png");
         imgElem.alt = "ratemyprofessors";
         imgElem.style.width = "9%";
         imgElem.style.paddingRight = "5px";
+        imgElem.addEventListener('mouseover', () => {imgElem.style.filter = 'grayscale(65%)'});
+        imgElem.addEventListener('mouseout', () => {imgElem.style.filter = 'grayscale(0%)'});
 
         RMPLink.appendChild(imgElem);
         subdir.parentNode.insertBefore(RMPLink, subdir);
@@ -60,28 +64,20 @@
     const setProfLinks = (thisCourse) => {
         // Gets *updated* element
         sections = document.getElementById(thisCourse).getElementsByClassName("section-instructors");
-        // console.log(thisCourse);
-        // console.log(document.getElementById(thisCourse));
-        // console.log(sections.length);
-        // console.log(sections[0]);
-        // hasLinks = sections[0].getElementsByClassName("rmpreviews-btn").length > 0;
 
-        // if(!hasLinks) {
+        // Per section
+        for(let i = 0; i < sections.length; i++) {
+            sectionProfs = sections[i].getElementsByClassName("section-instructor");
 
-            // Per section
-            for(let i = 0; i < sections.length; i++) {
-                sectionProfs = sections[i].getElementsByClassName("section-instructor");
-
-                // Per section professor (co-teaching)
-                for(let j = 0; j < sectionProfs.length; j++) {
-                    if(j > 0) {
-                        setBreak(sectionProfs[j]);
-                    }
-                    setPTLink(sectionProfs[j], "professor");
-                    setRMPLink(sectionProfs[j]);
+            // Per section professor (co-teaching)
+            for(let j = 0; j < sectionProfs.length; j++) {
+                if(j > 0) {
+                    setBreak(sectionProfs[j]);
                 }
+                setPTLink(sectionProfs[j], "professor");
+                setRMPLink(sectionProfs[j]);
             }
-        // }
+        }
     };
 
     /* User clicks "show all sections" button */
@@ -116,7 +112,7 @@
          *   - Even w/ mode: 'no-cors', status response msgs are rejected by the server and we're unable to detect err resp status'
          * Solutions
          *   - YQL bot? (extra yahoo dependency)
-         *   - ✓✓ load double webpage + html parse to find 404 err (plain-text dependency)
+         *   - ✓✓ html parse to find 404 err + load double webpage (DOM dependency)
          */
         if(obj.webpage === 'planetterp') {
             fourZeroFour = (document.getElementById("content").getElementsByClassName("py-4").length > 0);
@@ -135,11 +131,14 @@
             // Per course
             for(let i = 0; i < courses.length; i++) {
                 thisCourse = courses[i];
+                infoContainer = thisCourse.getElementsByClassName("course-info-container")[0];
                 courseId = thisCourse.getElementsByClassName("course-id")[0];
                 expanded = thisCourse.getElementsByClassName("section-instructor").length > 0;
+                
+                // Establishing course links
                 setPTLink(courseId, "course");
 
-                // Initial instructor links
+                // Establishing initial instructor links
                 if(expanded) {
                     setProfLinks(courseId.textContent);
                 }
@@ -151,8 +150,10 @@
                     (function(name) {
                         hasSections.addEventListener("click", () => {
                             console.log("Clicked section button!");
-                            // Redundant !hasLinks check is necessary b/c link status may have changed
-                            //      within interval of when eventListener was established and when it is triggered 
+                            /*
+                             * Redundant !hasLinks check is necessary b/c link status may have changed
+                             * within interval of when eventListener was established and when it is triggered 
+                             */
                             hasLinks2 = document.getElementById(name).getElementsByClassName("rmpreviews-btn").length > 0;
                             if(!hasLinks2) {
                                 setTimeout(setProfLinks, 500, name);
@@ -160,6 +161,36 @@
                         }, {once: true});
                     })(courseId.textContent);
                 }
+
+                // Establishing in-screen reviews
+                // setReviews(thisCourse);
+                const courseReviewsContainer = document.createElement("div");
+                courseReviewsContainer.style.paddingTop = "5px";
+
+                const courseReviewsToggleBtn = document.createElement("a");
+                courseReviewsToggleBtn.className = "course-reviews-toggle-btn";
+                courseReviewsToggleBtn.title = "View student reviews/details in-screen";
+                courseReviewsToggleBtn.style.color = "#A81919";
+                courseReviewsToggleBtn.style.cursor = "pointer";
+
+                const arrowIcon = document.createElement("img");
+                arrowIcon.src = chrome.runtime.getURL("assets/dropdown_triangle_icon2.png");
+                arrowIcon.style.width = "6px";
+                arrowIcon.style.paddingRight = "4px";
+                arrowIcon.style.paddingLeft = "1px";
+
+                const toggleText = document.createElement("span");
+                toggleText.textContent = "Show Reviews";
+                // toggleText.style.color = "#A81919";
+
+                const courseReviewsText = document.createElement("div"); //fetchReviewsData();
+                courseReviewsText.textContent = "Reviews, reviews, and more reviews";
+
+                courseReviewsToggleBtn.appendChild(arrowIcon);
+                courseReviewsToggleBtn.appendChild(toggleText);
+                courseReviewsContainer.appendChild(courseReviewsToggleBtn);
+                courseReviewsContainer.appendChild(courseReviewsText);
+                infoContainer.appendChild(courseReviewsContainer);
             }
         }
     });

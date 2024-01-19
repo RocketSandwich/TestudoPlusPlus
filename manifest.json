@@ -23,10 +23,7 @@
     ],
     "web_accessible_resources": [
         {
-            "resources": [
-                "assets/PT_logo.png",
-                "assets/RMP_logo.png"
-            ],
+            "resources": ["assets/*"],
             "matches": ["https://*.testudo.umd.edu/*"]
         }
     ],
