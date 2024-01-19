@@ -49,8 +49,12 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 
         // PT links
         } else if(tab.url.match(/planetterp.com\/professor/)) {
-            const name = tab.url.split("_")[0].split("professor/")[1];
-            chrome.tabs.sendMessage(tabId, {webpage: "planetterp", name: name});
+            if(tab.url.split("_")[0] !== tab.url) {
+                const name = tab.url.split("_")[0].split("professor/")[1];
+                chrome.tabs.sendMessage(tabId, {webpage: "planetterp", name: name});
+            } else {
+                console.log("Prevents infinite 404 requests");
+            }
 
         // RMP links
         } else if(tab.url.match(/ratemyprofessors.com\/search\/professors\/1270/)) {

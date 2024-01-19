@@ -1,5 +1,5 @@
 {
-    "name": "Testudo Reviews",
+    "name": "Testudo++",
     "version": "0.1.0",
     "description": "A streamlined process for reviewing course and professor evaluations using the PlanetTerp API directly integrated as a browser extension.",
     "permissions": ["tabs"],
