@@ -25,9 +25,9 @@
         imgElem.src = chrome.runtime.getURL("assets/PT_logo.png");
         imgElem.alt = "PlanetTerp";
         (type == "course") ? (imgElem.style.width = "40%") : (imgElem.style.width = "7%", imgElem.style.paddingRight = "5px");
-        imgElem.addEventListener('mouseover', () => {imgElem.style.filter = 'grayscale(50%)'});
-        imgElem.addEventListener('mouseout', () => {imgElem.style.filter = 'grayscale(0%)'});
 
+        PTLink.addEventListener('mouseover', () => {imgElem.style.filter = 'grayscale(50%)'});
+        PTLink.addEventListener('mouseout', () => {imgElem.style.filter = 'grayscale(0%)'});
         PTLink.appendChild(imgElem);
         (type == "course") ? (subdir.appendChild(PTLink)) : (subdir.parentNode.insertBefore(PTLink, subdir));
     };
@@ -47,9 +47,9 @@
         imgElem.alt = "ratemyprofessors";
         imgElem.style.width = "9%";
         imgElem.style.paddingRight = "5px";
-        imgElem.addEventListener('mouseover', () => {imgElem.style.filter = 'grayscale(65%)'});
-        imgElem.addEventListener('mouseout', () => {imgElem.style.filter = 'grayscale(0%)'});
 
+        RMPLink.addEventListener('mouseover', () => {imgElem.style.filter = 'grayscale(65%)'});
+        RMPLink.addEventListener('mouseout', () => {imgElem.style.filter = 'grayscale(0%)'});
         RMPLink.appendChild(imgElem);
         subdir.parentNode.insertBefore(RMPLink, subdir);
     };
@@ -99,6 +99,23 @@
         sectionsBtn.addEventListener("click", () => {
             setTimeout(fn, 600, courses);
         }, {once: true});
+    };
+
+    /* Fetches data for corresponding course */
+    const fetchReviewsData = (courseName) => {
+        fetch("https://planetterp.com/api/v1/course?name=" + courseName + "&reviews=true")
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log(data);
+        })
+        .catch(error => {
+            console.error("Error during fetch operation:", error);
+        });
     };
 
     /* Finds right place to inject content on page */
@@ -165,31 +182,81 @@
                 // Establishing in-screen reviews
                 // setReviews(thisCourse);
                 const courseReviewsContainer = document.createElement("div");
+                courseReviewsContainer.className = "course-reviews-container";
                 courseReviewsContainer.style.paddingTop = "5px";
+                // courseReviewsContainer.style.border = "1px solid lightgrey";
+                // courseReviewsContainer.style.borderRadius = "4px";
+
+                const courseReviewsFieldset = document.createElement("fieldset");
+                courseReviewsFieldset.className = "course-reviews-fieldset";
+                courseReviewsFieldset.style.border = "1px solid #ddd";
+                // courseReviewsFieldset.style.paddingLeft = "15px";
+                // courseReviewsFieldset.style.paddingRight = "15px";
+                courseReviewsFieldset.style.padding = "13px";
+                courseReviewsFieldset.style.marginLeft = "-15px";
+                courseReviewsFieldset.style.borderRadius = "4px";
+                courseReviewsFieldset.style.maxWidth = "823px";
+
+                const legend = document.createElement("legend");
+                legend.style.paddingRight = "4px";
+                legend.style.paddingLeft = "3px";
 
                 const courseReviewsToggleBtn = document.createElement("a");
                 courseReviewsToggleBtn.className = "course-reviews-toggle-btn";
-                courseReviewsToggleBtn.title = "View student reviews/details in-screen";
+                courseReviewsToggleBtn.title = "View student reviews in-screen";
                 courseReviewsToggleBtn.style.color = "#A81919";
                 courseReviewsToggleBtn.style.cursor = "pointer";
+                // courseReviewsToggleBtn.style.paddingBottom = "3px";
+                courseReviewsToggleBtn.style.display = "block";
 
-                const arrowIcon = document.createElement("img");
-                arrowIcon.src = chrome.runtime.getURL("assets/dropdown_triangle_icon2.png");
-                arrowIcon.style.width = "6px";
-                arrowIcon.style.paddingRight = "4px";
-                arrowIcon.style.paddingLeft = "1px";
+                const arrowIcon2 = document.createElement("img");
+                arrowIcon2.src = chrome.runtime.getURL("assets/dropdown_triangle_icon2.png");
+                arrowIcon2.style.width = "6px";
+                arrowIcon2.style.height = "9px";
+                arrowIcon2.style.paddingRight = "4px";
+                // arrowIcon2.style.paddingLeft = "1px";
+                const arrowIcon1 = document.createElement("img");
+                arrowIcon1.src = chrome.runtime.getURL("assets/dropdown_triangle_icon1.png");
+                arrowIcon1.width = 9;
+                arrowIcon1.style.paddingRight = "3px";
+                arrowIcon1.style.paddingBottom = "2px";
 
                 const toggleText = document.createElement("span");
                 toggleText.textContent = "Show Reviews";
-                // toggleText.style.color = "#A81919";
+                courseReviewsToggleBtn.addEventListener('click', () => {
+                    if(toggleText.textContent === "Show Reviews") {
+                        courseReviewsToggleBtn.replaceChild(arrowIcon1, arrowIcon2);
+                        toggleText.textContent = "Hide Reviews";
+                    } else {
+                        courseReviewsToggleBtn.replaceChild(arrowIcon2, arrowIcon1);
+                        toggleText.textContent = "Show Reviews";
+                    }
+                });
 
-                const courseReviewsText = document.createElement("div"); //fetchReviewsData();
-                courseReviewsText.textContent = "Reviews, reviews, and more reviews";
+                // if(courseId.textContent === "CMSC131") {
+                //     fetchReviewsData(courseId.textContent);
+                // }
+                const courseReviewsBody = document.createElement("div"); //fetchReviewsData();
+                courseReviewsBody.className = "course-reviews-body";
+                courseReviewsBody.style.padding = "9px";
+                courseReviewsBody.style.paddingTop = "5px";
+                courseReviewsBody.style.paddingBottom = "5px";
+                courseReviewsBody.style.border = "1px solid #eee";
+                courseReviewsBody.style.borderRadius = "4px";
+                courseReviewsBody.style.maxWidth = "auto";//"802px";
+                courseReviewsBody.style.marginTop = "-9px";
 
-                courseReviewsToggleBtn.appendChild(arrowIcon);
+                const courseReviewsBodyContent = document.createElement("div");
+                courseReviewsBodyContent.className = "course-reviews-body-content";
+                courseReviewsBodyContent.textContent = "Reviews, reviews, and more reviews";
+
+                courseReviewsBody.appendChild(courseReviewsBodyContent);
+                courseReviewsToggleBtn.appendChild(arrowIcon2);
                 courseReviewsToggleBtn.appendChild(toggleText);
-                courseReviewsContainer.appendChild(courseReviewsToggleBtn);
-                courseReviewsContainer.appendChild(courseReviewsText);
+                legend.appendChild(courseReviewsToggleBtn);
+                courseReviewsFieldset.appendChild(legend);
+                courseReviewsFieldset.appendChild(courseReviewsBody);
+                courseReviewsContainer.appendChild(courseReviewsFieldset);
                 infoContainer.appendChild(courseReviewsContainer);
             }
         }
