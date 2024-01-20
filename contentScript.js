@@ -208,6 +208,7 @@
                 courseReviewsToggleBtn.style.cursor = "pointer";
                 // courseReviewsToggleBtn.style.paddingBottom = "3px";
                 courseReviewsToggleBtn.style.display = "block";
+                courseReviewsToggleBtn.style.userSelect = "none";
 
                 const arrowIcon2 = document.createElement("img");
                 arrowIcon2.src = chrome.runtime.getURL("assets/dropdown_triangle_icon2.png");
