@@ -119,11 +119,6 @@
         }
     };
 
-    /* Adding content body elements */
-    const addReviews = async () => {
-
-    };
-
     /* Finds right place to inject content on page */
     chrome.runtime.onMessage.addListener((obj, sender, response) => {
         /*
@@ -185,20 +180,14 @@
                     })(courseId.textContent);
                 }
 
-                // Establishing in-screen reviews
+                // Establishing in-screen reviews (Refactor pls)
                 // setReviews(thisCourse);
                 const courseReviewsContainer = document.createElement("div");
                 courseReviewsContainer.className = "course-reviews-container";
                 courseReviewsContainer.style.paddingTop = "5px";
-                // courseReviewsContainer.style.border = "1px solid lightgrey";
-                // courseReviewsContainer.style.borderRadius = "4px";
 
                 const courseReviewsFieldset = document.createElement("fieldset");
                 courseReviewsFieldset.className = "course-reviews-fieldset";
-                // courseReviewsFieldset.style.border = "1px solid #ddd";
-                // courseReviewsFieldset.style.paddingLeft = "15px";
-                // courseReviewsFieldset.style.paddingRight = "15px";
-                // courseReviewsFieldset.style.padding = "13px";
                 courseReviewsFieldset.style.marginLeft = "-15px";
                 courseReviewsFieldset.style.borderRadius = "4px";
                 courseReviewsFieldset.style.maxWidth = "823px";
@@ -216,7 +205,6 @@
                 courseReviewsToggleBtn.title = "View student reviews in-screen";
                 courseReviewsToggleBtn.style.color = "#A81919";
                 courseReviewsToggleBtn.style.cursor = "pointer";
-                // courseReviewsToggleBtn.style.paddingBottom = "3px";
                 courseReviewsToggleBtn.style.display = "block";
                 courseReviewsToggleBtn.style.userSelect = "none";
                 courseReviewsToggleBtn.style.maxWidth = "105px";
@@ -226,7 +214,6 @@
                 arrowIcon2.style.width = "6px";
                 arrowIcon2.style.height = "9px";
                 arrowIcon2.style.paddingRight = "4px";
-                // arrowIcon2.style.paddingLeft = "1px";
                 const arrowIcon1 = document.createElement("img");
                 arrowIcon1.src = chrome.runtime.getURL("assets/dropdown_triangle_icon1.png");
                 arrowIcon1.width = 9;
@@ -236,20 +223,12 @@
                 const toggleText = document.createElement("span");
                 toggleText.textContent = "Show Reviews";
 
-                // if(courseId.textContent === "CMSC131") {
-                //     fetchReviewsData(courseId.textContent);
-                // }
                 const courseReviewsBody = document.createElement("div"); //fetchReviewsData();
                 courseReviewsBody.className = "course-reviews-body";
-                // courseReviewsBody.style.padding = "11px";
-                // courseReviewsBody.style.paddingTop = "5px";
-                // courseReviewsBody.style.paddingBottom = "5px";
                 courseReviewsBody.style.border = "1px solid #eee";
                 courseReviewsBody.style.borderRadius = "4px";
                 courseReviewsBody.style.maxWidth = "auto";//"802px";
                 courseReviewsBody.style.marginTop = "-9px";
-                // courseReviewsBody.style.backgroundColor = "#eee";
-                // courseReviewsBody.style.transition = "padding-top 0.7s ease-in-out, padding-bottom 0.7s ease-in-out";
                 courseReviewsBody.style.display = "none";
 
                 courseReviewsToggleBtn.appendChild(arrowIcon2);
@@ -266,15 +245,11 @@
                         if(!legend.classList.contains("fetched")) {
                             legend.classList.add("fetched");
                             data = await fetchReviewsData(courseName);
-                            // console.log("In here!!!");
-                            // console.log(data.reviews);
                             reviews = data.reviews;
                             matchingCourse = document.getElementById(courseName);
                             matchingCourseBody = matchingCourse.getElementsByClassName("course-reviews-body")[0];
-                            // console.log(matchingCourse);
-                            // console.log(matchingCourseBody);
+
                             for(let j = reviews.length - 1; j >= 0; j--) {
-                                // console.log("Looping " + j);
                                 const courseReviewsBodyContent = document.createElement("div");
                                 courseReviewsBodyContent.className = "course-reviews-body-content";
                                 if(j % 2 === 0) {
@@ -284,24 +259,18 @@
                                 courseReviewsBodyContent.style.paddingTop = "5px";
                                 courseReviewsBodyContent.style.paddingBottom = "5px";
                                 courseReviewsBodyContent.textContent = reviews[j].review;
-                                // console.log(courseReviewsBodyContent);
                                 //"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Eget mauris pharetra et ultrices neque ornare aenean. Auctor eu augue ut lectus arcu bibendum at varius vel. Duis at consectetur lorem donec massa sapien faucibus. Mauris sit amet massa vitae tortor condimentum lacinia quis vel. Lobortis elementum nibh tellus molestie nunc. Fermentum odio eu feugiat pretium nibh. Cursus euismod quis viverra nibh cras pulvinar mattis nunc sed. Amet tellus cras adipiscing enim. Pellentesque habitant morbi tristique senectus et netus et malesuada fames. Laoreet sit amet cursus sit amet dictum sit amet. Lorem ipsum dolor sit amet consectetur adipiscing. Nibh praesent tristique magna sit amet. Lectus mauris ultrices eros in cursus turpis massa. Eu feugiat pretium nibh ipsum. Sit amet consectetur adipiscing elit ut aliquam purus sit amet. Tempor orci eu lobortis elementum nibh tellus molestie nunc. Risus in hendrerit gravida rutrum quisque non tellus orci ac. Elit pellentesque habitant morbi tristique senectus et netus.";
                                 matchingCourseBody.appendChild(courseReviewsBodyContent);
                             }
-                            console.log("in promise");
-                            console.log(matchingCourseBody);
 
                             matchingCourse = document.getElementById(courseName);
                             matchingCourseBody = matchingCourse.getElementsByClassName("course-reviews-body")[0];
-                            console.log("after promise section");
-                            console.log(matchingCourseBody);
                         }
 
                         if(legend.classList.contains("active")) {
                             matchingCourse = document.getElementById(courseName);
                             matchingCourseBody = matchingCourse.getElementsByClassName("course-reviews-body")[0];
-                            console.log("Active->Hidden scrollheight = " + matchingCourseBody.scrollHeight);
-                            // setTimeout(5000);
+
                             courseReviewsBody.style.maxHeight = "0px";
                             legend.classList.toggle("active");
                             courseReviewsToggleBtn.replaceChild(arrowIcon2, arrowIcon1);
@@ -311,70 +280,38 @@
                             courseReviewsFieldset.style.paddingBottom = "0px";
                             courseReviewsBody.style.paddingTop = "0px";
                             courseReviewsBody.style.paddingBottom = "0px";
-                            // console.log("maxHeight = " + courseReviewsBody.style.maxHeight);
-                            // console.log("height = " + courseReviewsBody.style.height);
-                            // courseReviewsFieldset.style.height = "10px";
-                            // setTimeout(() => {
-                            //     courseReviewsFieldset.style.padding = "0px";
-                            //     courseReviewsFieldset.style.border = "none";
-                            //     courseReviewsBody.style.display = "none";
-                            //     courseReviewsFieldset.style.display = "contents";
-                            // }, 700);
                         } else {
-                            // matchingCourseBody.style.display = "block";
                             courseReviewsFieldset.style.display = "block";
                             courseReviewsFieldset.style.padding = "13px";
                             courseReviewsFieldset.style.border = "1px solid #ddd";
-                            // courseReviewsBody.style.paddingTop = "5px";
-                            // courseReviewsBody.style.paddingBottom = "5px";
 
                             matchingCourse = document.getElementById(courseName);
                             matchingCourseBody = matchingCourse.getElementsByClassName("course-reviews-body")[0];
-                            console.log(matchingCourse);
-                            console.log(matchingCourseBody);
-                            console.log("scrollHeight = " + matchingCourseBody.scrollHeight);
                             matchingCourseBody.style.display = "block";
-                            console.log("1) Hidden->Active scrollheight = " + matchingCourseBody.scrollHeight);
-                            console.log("2) Hidden->Active scrollheight = " + courseReviewsBody.scrollHeight);
+
                             if(matchingCourseBody.scrollHeight < 450) {
-                                console.log("< 450px");
                                 matchingCourseBody.style.maxHeight = matchingCourseBody.scrollHeight + "px";
                             } else {
-                                console.log("> 450px");
                                 matchingCourseBody.style.maxHeight = "450px";
                             }
                             courseReviewsToggleBtn.replaceChild(arrowIcon1, arrowIcon2);
                             toggleText.textContent = "Hide Reviews";
                             legend.classList.toggle("active");
                         }
-                        // legend.classList.toggle("active");
-                        // console.log("courseReviewsFieldset height = " + courseReviewsFieldset.style.maxHeight);
+
                         matchingCourse2 = document.getElementById(courseName);
                         matchingCourseBody2 = matchingCourse2.getElementsByClassName("course-reviews-body")[0];
-                        console.log(matchingCourseBody2);
-                        console.log("scrollheight = " + matchingCourseBody2.scrollHeight);
                     });
                 })(courseId.textContent);
 
                 courseReviewsBody.addEventListener("transitionend", () => {
                     if(courseReviewsBody.style.maxHeight === "0px") {
-                        // courseReviewsBody.style.display = "none";
-                        // courseReviewsFieldset.style.transition = "padding-bottom 0.7s ease-in-out, height 0.7s ease-in-out";
-                        // courseReviewsFieldset.style.transition = "padding 0.5s ease-in-out";
-                        // courseReviewsFieldset.style.animation = "fadeOut 1s";
                         courseReviewsFieldset.style.padding = "0px";
                         courseReviewsFieldset.style.border = "none";
                         courseReviewsBody.style.display = "none";
                         courseReviewsFieldset.style.display = "contents";
                     }
                 });
-
-                // courseReviewsFieldset.addEventListener("animationend", () => {
-                //     courseReviewsFieldset.style.padding = "0px";
-                //     courseReviewsFieldset.style.border = "none";
-                //     courseReviewsBody.style.display = "none";
-                //     courseReviewsFieldset.style.display = "contents";
-                // });
             }
         }
     });
