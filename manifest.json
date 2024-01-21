@@ -18,6 +18,7 @@
                 "https://planetterp.com/*",
                 "https://www.ratemyprofessors.com/*"
             ],
+            "css": ["contentScript.css"],
             "js": ["contentScript.js"]
         }
     ],

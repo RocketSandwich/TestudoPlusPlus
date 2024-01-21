@@ -1,0 +1,19 @@
+.course-reviews-body {
+    max-height: 0;
+    overflow: auto;
+    transition: max-height 0.7s ease-in-out, padding-top 0.7s ease-in-out, padding-bottom 0.7s ease-in-out;
+}
+
+/* .course-reviews-header.active + .course-reviews-body {
+    max-height: 50px;
+} */
+
+/* @keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0;
+    }
+} */
