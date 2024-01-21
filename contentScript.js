@@ -180,10 +180,10 @@
                             courseReviewsBodyContent.textContent = "No course reviews yet. :(";
                             matchingCourseBody.appendChild(courseReviewsBodyContent);
                         } else {
-                            for(let j = reviews.length - 1; j >= 0; j--) {
+                            for(let j = reviews.length - 1, k = 0; j >= 0; j--, k++) {
                                 const courseReviewsBodyContent = document.createElement("div");
                                 courseReviewsBodyContent.className = "course-reviews-body-content";
-                                if(j % 2 === 0) {
+                                if(k % 2 == 0) {
                                     courseReviewsBodyContent.style.backgroundColor = "#eee";
                                 }
 
