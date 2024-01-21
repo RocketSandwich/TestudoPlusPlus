@@ -1,19 +1,59 @@
+.rmp-img {
+    width: 9%;
+    padding-right: 5px;
+}
+
+.course-reviews-container {
+    padding-top: 5px;
+}
+
+.course-reviews-fieldset {
+    margin-left: -15px;
+    border-radius: 4px;
+    max-width: 823px;
+    transition: padding-bottom 0.7s ease-in-out, padding-top 0.7s ease-in-out;
+    display: contents;
+}
+
+.course-reviews-header {
+    padding-right: 4px;
+    padding-left: 3px;
+    margin-left: -2px;
+}
+
+.course-reviews-toggle-btn {
+    color: #A81919;
+    cursor: pointer;
+    display: block;
+    user-select: none;
+    max-width: 105px;
+}
+
+.right-arrow {
+    width: 6px;
+    height: 9px;
+    padding-right: 4px;
+}
+
+.left-arrow {
+    width: 9px;
+    padding-right: 3px;
+    padding-bottom: 2px;
+}
+
 .course-reviews-body {
     max-height: 0px;
     overflow: auto;
-    transition: max-height 0.7s ease-in-out, padding-top 0.7s ease-in-out, padding-bottom 0.7s ease-in-out;
+    transition: max-height 0.7s ease-in-out;/*, padding-top 0.7s ease-in-out, padding-bottom 0.7s ease-in-out;*/
+    border: 1px solid #eee;
+    border-radius: 4px;
+    max-width: auto;
+    margin-top: -9px;
+    display: none;
 }
 
-/* .course-reviews-header.active + .course-reviews-body {
-    max-height: 50px;
-} */
-
-/* @keyframes fadeOut {
-    from {
-        opacity: 1;
-    }
-
-    to {
-        opacity: 0;
-    }
-} */
+.course-reviews-body-content {
+    padding: 11px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}

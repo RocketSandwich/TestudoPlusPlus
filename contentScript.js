@@ -23,6 +23,7 @@
 
         const imgElem = document.createElement("img");
         imgElem.src = chrome.runtime.getURL("assets/PT_logo.png");
+        imgElem.className = "pt-img";
         imgElem.alt = "PlanetTerp";
         (type == "course") ? (imgElem.style.width = "40%") : (imgElem.style.width = "7%", imgElem.style.paddingRight = "5px");
 
@@ -44,9 +45,8 @@
 
         const imgElem = document.createElement("img");
         imgElem.src = chrome.runtime.getURL("assets/RMP_logo.png");
+        imgElem.className = "rmp-img";
         imgElem.alt = "ratemyprofessors";
-        imgElem.style.width = "9%";
-        imgElem.style.paddingRight = "5px";
 
         RMPLink.addEventListener('mouseover', () => {imgElem.style.filter = 'grayscale(65%)'});
         RMPLink.addEventListener('mouseout', () => {imgElem.style.filter = 'grayscale(0%)'});
@@ -62,7 +62,6 @@
 
     /* Insert professor links */
     const setProfLinks = (thisCourse) => {
-        // Gets *updated* element
         sections = document.getElementById(thisCourse).getElementsByClassName("section-instructors");
 
         // Per section
@@ -114,9 +113,149 @@
             console.log(data); 
             return data;
         } catch (error) {
-            console.error("Error during fetch:", error);
-            throw error; 
+            console.log("Error during fetch:", error);
+            return undefined;
+            // throw error; 
         }
+    };
+
+    /* Establishes native course reviews */
+    const setNativeReviews = (courseId, infoContainer) => {
+
+        // Creating containers
+        const courseReviewsContainer = document.createElement("div");
+        courseReviewsContainer.className = "course-reviews-container";
+        
+        const courseReviewsFieldset = document.createElement("fieldset");
+        courseReviewsFieldset.className = "course-reviews-fieldset";
+        
+        const legend = document.createElement("legend");
+        legend.className = "course-reviews-header";
+
+        const courseReviewsToggleBtn = document.createElement("a");
+        courseReviewsToggleBtn.className = "course-reviews-toggle-btn";
+        courseReviewsToggleBtn.title = "View student reviews in-screen";
+
+        const arrowIcon2 = document.createElement("img");
+        arrowIcon2.src = chrome.runtime.getURL("assets/dropdown_triangle_icon2.png");
+        arrowIcon2.className = "right-arrow";
+        const arrowIcon1 = document.createElement("img");
+        arrowIcon1.src = chrome.runtime.getURL("assets/dropdown_triangle_icon1.png");
+        arrowIcon1.className = "left-arrow";
+
+        const toggleText = document.createElement("span");
+        toggleText.textContent = "Show Reviews";
+
+        const courseReviewsBody = document.createElement("div");
+        courseReviewsBody.className = "course-reviews-body";
+
+        // Joining containers appropriately
+        courseReviewsToggleBtn.appendChild(arrowIcon2);
+        courseReviewsToggleBtn.appendChild(toggleText);
+        legend.appendChild(courseReviewsToggleBtn);
+        courseReviewsFieldset.appendChild(legend);
+        courseReviewsFieldset.appendChild(courseReviewsBody);
+        courseReviewsContainer.appendChild(courseReviewsFieldset);
+        infoContainer.appendChild(courseReviewsContainer);
+
+        // Immediately-invoked func expr (IIFE) used to retain "memory" link between correct button & course
+        (function(courseName) {
+            courseReviewsToggleBtn.addEventListener('click', async () => {
+
+                // Prevents redundant PT API calls
+                if(!legend.classList.contains("fetched")) {
+                    legend.classList.add("fetched");
+                    data = await fetchReviewsData(courseName);
+                    matchingCourse = document.getElementById(courseName);
+                    matchingCourseBody = matchingCourse.getElementsByClassName("course-reviews-body")[0];
+
+                    if(data) {
+                        reviews = data.reviews;
+
+                        // Adding reviews to container body
+                        if(reviews.length == 0) {
+                            const courseReviewsBodyContent = document.createElement("div");
+                            courseReviewsBodyContent.className = "course-reviews-body-content";
+                            courseReviewsBodyContent.style.backgroundColor = "#eee";
+                            courseReviewsBodyContent.textContent = "No course reviews yet. :(";
+                            matchingCourseBody.appendChild(courseReviewsBodyContent);
+                        } else {
+                            for(let j = reviews.length - 1; j >= 0; j--) {
+                                const courseReviewsBodyContent = document.createElement("div");
+                                courseReviewsBodyContent.className = "course-reviews-body-content";
+                                if(j % 2 === 0) {
+                                    courseReviewsBodyContent.style.backgroundColor = "#eee";
+                                }
+
+                                courseReviewsBodyContent.textContent = reviews[j].review;
+                                /* Test Content */
+                                // Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                                // Eget mauris pharetra et ultrices neque ornare aenean. Auctor eu augue ut lectus arcu bibendum at varius vel. Duis at consectetur lorem donec massa sapien faucibus.
+                                // Mauris sit amet massa vitae tortor condimentum lacinia quis vel. Lobortis elementum nibh tellus molestie nunc. Fermentum odio eu feugiat pretium nibh.
+                                // Cursus euismod quis viverra nibh cras pulvinar mattis nunc sed. Amet tellus cras adipiscing enim. Pellentesque habitant morbi tristique senectus et netus et malesuada fames.
+                                // Laoreet sit amet cursus sit amet dictum sit amet. Lorem ipsum dolor sit amet consectetur adipiscing. Nibh praesent tristique magna sit amet.
+                                // Lectus mauris ultrices eros in cursus turpis massa. Eu feugiat pretium nibh ipsum. Sit amet consectetur adipiscing elit ut aliquam purus sit amet.
+                                // Tempor orci eu lobortis elementum nibh tellus molestie nunc. Risus in hendrerit gravida rutrum quisque non tellus orci ac. Elit pellentesque habitant morbi tristique senectus et netus.
+                                matchingCourseBody.appendChild(courseReviewsBodyContent);
+                            }
+                        }
+                    } else {
+                        const courseReviewsBodyContent = document.createElement("div");
+                        courseReviewsBodyContent.className = "course-reviews-body-content";
+                        courseReviewsBodyContent.style.backgroundColor = "#eee";
+                        courseReviewsBodyContent.style.whiteSpace = "pre";
+                        courseReviewsBodyContent.textContent = "No course reviews yet. :(\r\nPlanetTerp doesn't even have " + courseName + " registered.";
+                        matchingCourseBody.appendChild(courseReviewsBodyContent);
+                    }
+
+                    matchingCourse = document.getElementById(courseName);
+                    matchingCourseBody = matchingCourse.getElementsByClassName("course-reviews-body")[0];
+                }
+
+                // Shrinking review box
+                if(legend.classList.contains("active")) {
+                    matchingCourse = document.getElementById(courseName);
+                    matchingCourseBody = matchingCourse.getElementsByClassName("course-reviews-body")[0];
+
+                    courseReviewsBody.style.maxHeight = "0px";
+                    legend.classList.toggle("active");
+                    courseReviewsToggleBtn.replaceChild(arrowIcon2, arrowIcon1);
+                    toggleText.textContent = "Show Reviews";
+                    courseReviewsFieldset.style.transition = "padding-bottom 0.7s ease-in-out, padding-top 0.7s ease-in-out";
+                    courseReviewsFieldset.style.paddingTop = "0px";
+                    courseReviewsFieldset.style.paddingBottom = "0px";
+                    courseReviewsBody.style.paddingTop = "0px";
+                    courseReviewsBody.style.paddingBottom = "0px";
+                // Expanding review box
+                } else {
+                    courseReviewsFieldset.style.display = "block";
+                    courseReviewsFieldset.style.padding = "13px";
+                    courseReviewsFieldset.style.border = "1px solid #ddd";
+
+                    matchingCourse = document.getElementById(courseName);
+                    matchingCourseBody = matchingCourse.getElementsByClassName("course-reviews-body")[0];
+                    matchingCourseBody.style.display = "block";
+
+                    if(matchingCourseBody.scrollHeight < 450) {
+                        matchingCourseBody.style.maxHeight = matchingCourseBody.scrollHeight + "px";
+                    } else {
+                        matchingCourseBody.style.maxHeight = "450px";
+                    }
+                    courseReviewsToggleBtn.replaceChild(arrowIcon1, arrowIcon2);
+                    toggleText.textContent = "Hide Reviews";
+                    legend.classList.toggle("active");
+                }
+            });
+        })(courseId.textContent);
+
+        courseReviewsBody.addEventListener("transitionend", () => {
+            if(courseReviewsBody.style.maxHeight === "0px") {
+                courseReviewsFieldset.style.padding = "0px";
+                courseReviewsFieldset.style.border = "none";
+                courseReviewsBody.style.display = "none";
+                courseReviewsFieldset.style.display = "contents";
+            }
+        });
     };
 
     /* Finds right place to inject content on page */
@@ -165,13 +304,14 @@
                 hasSections = thisCourse.getElementsByClassName("toggle-sections-link")[0];
                 hasLinks = thisCourse.getElementsByClassName("rmpreviews-btn").length > 0;
                 if(hasSections && !hasLinks) {
+
+                    // IIFE used to retain "memory" link between correct button & course
                     (function(name) {
                         hasSections.addEventListener("click", () => {
                             console.log("Clicked section button!");
-                            /*
-                             * Redundant !hasLinks check is necessary b/c link status may have changed
-                             * within interval of when eventListener was established and when it is triggered 
-                             */
+                            
+                            // Redundant !hasLinks check is necessary b/c link status may have changed
+                            // within interval of when eventListener was established and when it is triggered 
                             hasLinks2 = document.getElementById(name).getElementsByClassName("rmpreviews-btn").length > 0;
                             if(!hasLinks2) {
                                 setTimeout(setProfLinks, 500, name);
@@ -180,138 +320,7 @@
                     })(courseId.textContent);
                 }
 
-                // Establishing in-screen reviews (Refactor pls)
-                // setReviews(thisCourse);
-                const courseReviewsContainer = document.createElement("div");
-                courseReviewsContainer.className = "course-reviews-container";
-                courseReviewsContainer.style.paddingTop = "5px";
-
-                const courseReviewsFieldset = document.createElement("fieldset");
-                courseReviewsFieldset.className = "course-reviews-fieldset";
-                courseReviewsFieldset.style.marginLeft = "-15px";
-                courseReviewsFieldset.style.borderRadius = "4px";
-                courseReviewsFieldset.style.maxWidth = "823px";
-                courseReviewsFieldset.style.transition = "padding-bottom 0.7s ease-in-out, padding-top 0.7s ease-in-out";
-                courseReviewsFieldset.style.display = "contents";
-
-                const legend = document.createElement("legend");
-                legend.className = "course-reviews-header";
-                legend.style.paddingRight = "4px";
-                legend.style.paddingLeft = "3px";
-                legend.style.marginLeft = "-2px";
-
-                const courseReviewsToggleBtn = document.createElement("a");
-                courseReviewsToggleBtn.className = "course-reviews-toggle-btn";
-                courseReviewsToggleBtn.title = "View student reviews in-screen";
-                courseReviewsToggleBtn.style.color = "#A81919";
-                courseReviewsToggleBtn.style.cursor = "pointer";
-                courseReviewsToggleBtn.style.display = "block";
-                courseReviewsToggleBtn.style.userSelect = "none";
-                courseReviewsToggleBtn.style.maxWidth = "105px";
-
-                const arrowIcon2 = document.createElement("img");
-                arrowIcon2.src = chrome.runtime.getURL("assets/dropdown_triangle_icon2.png");
-                arrowIcon2.style.width = "6px";
-                arrowIcon2.style.height = "9px";
-                arrowIcon2.style.paddingRight = "4px";
-                const arrowIcon1 = document.createElement("img");
-                arrowIcon1.src = chrome.runtime.getURL("assets/dropdown_triangle_icon1.png");
-                arrowIcon1.width = 9;
-                arrowIcon1.style.paddingRight = "3px";
-                arrowIcon1.style.paddingBottom = "2px";
-
-                const toggleText = document.createElement("span");
-                toggleText.textContent = "Show Reviews";
-
-                const courseReviewsBody = document.createElement("div"); //fetchReviewsData();
-                courseReviewsBody.className = "course-reviews-body";
-                courseReviewsBody.style.border = "1px solid #eee";
-                courseReviewsBody.style.borderRadius = "4px";
-                courseReviewsBody.style.maxWidth = "auto";//"802px";
-                courseReviewsBody.style.marginTop = "-9px";
-                courseReviewsBody.style.display = "none";
-
-                courseReviewsToggleBtn.appendChild(arrowIcon2);
-                courseReviewsToggleBtn.appendChild(toggleText);
-                legend.appendChild(courseReviewsToggleBtn);
-                courseReviewsFieldset.appendChild(legend);
-                courseReviewsFieldset.appendChild(courseReviewsBody);
-                courseReviewsContainer.appendChild(courseReviewsFieldset);
-                infoContainer.appendChild(courseReviewsContainer);
-
-                // Toggle button event listener
-                (function(courseName) {
-                    courseReviewsToggleBtn.addEventListener('click', async () => {
-                        if(!legend.classList.contains("fetched")) {
-                            legend.classList.add("fetched");
-                            data = await fetchReviewsData(courseName);
-                            reviews = data.reviews;
-                            matchingCourse = document.getElementById(courseName);
-                            matchingCourseBody = matchingCourse.getElementsByClassName("course-reviews-body")[0];
-
-                            for(let j = reviews.length - 1; j >= 0; j--) {
-                                const courseReviewsBodyContent = document.createElement("div");
-                                courseReviewsBodyContent.className = "course-reviews-body-content";
-                                if(j % 2 === 0) {
-                                    courseReviewsBodyContent.style.backgroundColor = "#eee";
-                                }
-                                courseReviewsBodyContent.style.padding = "11px";
-                                courseReviewsBodyContent.style.paddingTop = "5px";
-                                courseReviewsBodyContent.style.paddingBottom = "5px";
-                                courseReviewsBodyContent.textContent = reviews[j].review;
-                                //"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Eget mauris pharetra et ultrices neque ornare aenean. Auctor eu augue ut lectus arcu bibendum at varius vel. Duis at consectetur lorem donec massa sapien faucibus. Mauris sit amet massa vitae tortor condimentum lacinia quis vel. Lobortis elementum nibh tellus molestie nunc. Fermentum odio eu feugiat pretium nibh. Cursus euismod quis viverra nibh cras pulvinar mattis nunc sed. Amet tellus cras adipiscing enim. Pellentesque habitant morbi tristique senectus et netus et malesuada fames. Laoreet sit amet cursus sit amet dictum sit amet. Lorem ipsum dolor sit amet consectetur adipiscing. Nibh praesent tristique magna sit amet. Lectus mauris ultrices eros in cursus turpis massa. Eu feugiat pretium nibh ipsum. Sit amet consectetur adipiscing elit ut aliquam purus sit amet. Tempor orci eu lobortis elementum nibh tellus molestie nunc. Risus in hendrerit gravida rutrum quisque non tellus orci ac. Elit pellentesque habitant morbi tristique senectus et netus.";
-                                matchingCourseBody.appendChild(courseReviewsBodyContent);
-                            }
-
-                            matchingCourse = document.getElementById(courseName);
-                            matchingCourseBody = matchingCourse.getElementsByClassName("course-reviews-body")[0];
-                        }
-
-                        if(legend.classList.contains("active")) {
-                            matchingCourse = document.getElementById(courseName);
-                            matchingCourseBody = matchingCourse.getElementsByClassName("course-reviews-body")[0];
-
-                            courseReviewsBody.style.maxHeight = "0px";
-                            legend.classList.toggle("active");
-                            courseReviewsToggleBtn.replaceChild(arrowIcon2, arrowIcon1);
-                            toggleText.textContent = "Show Reviews";
-                            courseReviewsFieldset.style.transition = "padding-bottom 0.7s ease-in-out, padding-top 0.7s ease-in-out";
-                            courseReviewsFieldset.style.paddingTop = "0px";
-                            courseReviewsFieldset.style.paddingBottom = "0px";
-                            courseReviewsBody.style.paddingTop = "0px";
-                            courseReviewsBody.style.paddingBottom = "0px";
-                        } else {
-                            courseReviewsFieldset.style.display = "block";
-                            courseReviewsFieldset.style.padding = "13px";
-                            courseReviewsFieldset.style.border = "1px solid #ddd";
-
-                            matchingCourse = document.getElementById(courseName);
-                            matchingCourseBody = matchingCourse.getElementsByClassName("course-reviews-body")[0];
-                            matchingCourseBody.style.display = "block";
-
-                            if(matchingCourseBody.scrollHeight < 450) {
-                                matchingCourseBody.style.maxHeight = matchingCourseBody.scrollHeight + "px";
-                            } else {
-                                matchingCourseBody.style.maxHeight = "450px";
-                            }
-                            courseReviewsToggleBtn.replaceChild(arrowIcon1, arrowIcon2);
-                            toggleText.textContent = "Hide Reviews";
-                            legend.classList.toggle("active");
-                        }
-
-                        matchingCourse2 = document.getElementById(courseName);
-                        matchingCourseBody2 = matchingCourse2.getElementsByClassName("course-reviews-body")[0];
-                    });
-                })(courseId.textContent);
-
-                courseReviewsBody.addEventListener("transitionend", () => {
-                    if(courseReviewsBody.style.maxHeight === "0px") {
-                        courseReviewsFieldset.style.padding = "0px";
-                        courseReviewsFieldset.style.border = "none";
-                        courseReviewsBody.style.display = "none";
-                        courseReviewsFieldset.style.display = "contents";
-                    }
-                });
+                setNativeReviews(courseId, infoContainer);
             }
         }
     });

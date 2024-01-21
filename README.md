@@ -5,6 +5,5 @@ Future Implementations:
 - Implement extension window interface
 - Extension window logic; find way to toggle script injections
 - In-screen course/professor reviews
-- Refactor: phase out DOM-timer delay, use promises?
-- Refactor: bruh use CSS properly
-- Bug: Minor pixel alignments
+- Refactor: phase out DOM-timer delay?
+- Minor pixel alignments
