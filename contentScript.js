@@ -187,7 +187,22 @@
                                     courseReviewsBodyContent.style.backgroundColor = "#eee";
                                 }
 
-                                courseReviewsBodyContent.textContent = reviews[j].review;
+                                const review = reviews[j];
+                                const date = new Date(review.created);
+                                const options = {year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric', timeZoneName: 'short'};
+                                const readableDateString = date.toLocaleDateString('en-US', options);
+                                grade = "";
+                                (review.expected_grade == "") ? (grade = "?") : (grade = review.expected_grade);
+                                const bodyContentHeader = document.createElement("div");
+                                bodyContentHeader.className = "body-content-header";
+                                bodyContentHeader.textContent = review.professor + " " + "★".repeat(review.rating) + "☆".repeat(5 - review.rating) + " | Expecting " + grade + " | " + readableDateString;
+                                
+                                const bodyContentBody = document.createElement("span");
+                                bodyContentBody.textContent = review.review;
+
+                                courseReviewsBodyContent.appendChild(bodyContentHeader);
+                                courseReviewsBodyContent.appendChild(bodyContentBody);
+
                                 /* Test Content */
                                 // Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
                                 // Eget mauris pharetra et ultrices neque ornare aenean. Auctor eu augue ut lectus arcu bibendum at varius vel. Duis at consectetur lorem donec massa sapien faucibus.
