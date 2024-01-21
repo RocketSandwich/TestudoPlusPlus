@@ -1,5 +1,5 @@
 .course-reviews-body {
-    max-height: 0;
+    max-height: 0px;
     overflow: auto;
     transition: max-height 0.7s ease-in-out, padding-top 0.7s ease-in-out, padding-bottom 0.7s ease-in-out;
 }
