@@ -2,6 +2,7 @@
     // import easydropdown from "easydropdown";
     // const easydropdown = require('easydropdown');
 
+
     /* Rearranging instructor name for query */
     const swapWords = (professor) => {
         const words = professor.split(' ');
@@ -64,7 +65,7 @@
     };
 
     /* Insert professor links */
-    const setProfLinks = (thisCourse) => {
+    const setProfLinks = (thisCourse, thisCourseProfs) => {
         sections = document.getElementById(thisCourse).getElementsByClassName("section-instructors");
 
         // Per section
@@ -76,6 +77,7 @@
                 if(j > 0) {
                     setBreak(sectionProfs[j]);
                 }
+                thisCourseProfs.add(sectionProfs[j].textContent);
                 setPTLink(sectionProfs[j], "professor");
                 setRMPLink(sectionProfs[j]);
             }
@@ -123,7 +125,7 @@
     };
 
     /* Establishes native course reviews */
-    const setNativeReviews = (courseId, infoContainer) => {
+    const setNativeReviews = (courseId, infoContainer, thisCourseProfs) => {
 
         // Creating containers
         const courseReviewsContainer = document.createElement("div");
@@ -203,7 +205,8 @@
 
                     if(data) {
                         reviews = data.reviews;
-                        professors = data.professors;
+                        professors = new Set(data.professors);
+                        // console.log(professors);
 
                         // Event listener for drop-down box
                         filterBy.addEventListener("input", (event) => {
@@ -218,10 +221,11 @@
                             event.target.style.maxWidth = (w + 30) + "px";
                             document.body.removeChild(span);
 
+                            // Edit reviews box to display only the requested professor(s)
                         });
 
                         // Adding professors to drop-down box
-                        if(professors.length == 0) {
+                        if(professors.size == 0) {
                             const profOption = document.createElement("option");
                             profOption.className = "professor-option";
                             profOption.textContent = "No professor reviews yet.";
@@ -257,14 +261,26 @@
                             const optPast = document.createElement("optgroup");
                             optPast.label = "Past Instructors";
 
-                            for(let i = 0; i < professors.length; i++) {
+                            thisCourseProfs.forEach((value) => {
                                 const profOption = document.createElement("option");
                                 profOption.className = "professor-option";
-                                profOption.textContent = professors[i];
-                                profOption.value = professors[i];
-                                optCurrent.appendChild(profOption);
-                            }
+                                profOption.textContent = value;
+                                profOption.value = value;
 
+                                optCurrent.appendChild(profOption);
+                            });
+                            
+                            professors.forEach((value) => {
+                                const profOption = document.createElement("option");
+                                profOption.className = "professor-option";
+                                profOption.textContent = value;
+                                profOption.value = value;
+
+                                if(!thisCourseProfs.has(value)) {
+                                    optPast.appendChild(profOption);
+                                }
+                            });
+                            
                             filterBy.appendChild(optGroup);
                             filterBy.appendChild(optCurrent);
                             filterBy.appendChild(optPast);
@@ -431,6 +447,7 @@
 
             // Per course
             for(let i = 0; i < courses.length; i++) {
+                thisCourseProfs = new Set();
                 thisCourse = courses[i];
                 infoContainer = thisCourse.getElementsByClassName("course-info-container")[0];
                 courseId = thisCourse.getElementsByClassName("course-id")[0];
@@ -441,7 +458,7 @@
 
                 // Establishing initial instructor links
                 if(expanded) {
-                    setProfLinks(courseId.textContent);
+                    setProfLinks(courseId.textContent, thisCourseProfs);
                 }
 
                 // Establishing event listeners for section toggle
@@ -458,13 +475,13 @@
                             // within interval of when eventListener was established and when it is triggered 
                             hasLinks2 = document.getElementById(name).getElementsByClassName("rmpreviews-btn").length > 0;
                             if(!hasLinks2) {
-                                setTimeout(setProfLinks, 500, name);
+                                setTimeout(setProfLinks, 500, name, thisCourseProfs);
                             }
                         }, {once: true});
                     })(courseId.textContent);
                 }
 
-                setNativeReviews(courseId, infoContainer);
+                setNativeReviews(courseId, infoContainer, thisCourseProfs);
             }
         }
     });
