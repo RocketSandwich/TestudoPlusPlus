@@ -19,12 +19,41 @@
     padding-right: 4px;
     padding-left: 3px;
     margin-left: -2px;
+    width: auto;
 }
+
+.course-reviews-header > * {
+    display: inline-block;
+}
+
+.reviews-criteria > * {
+    display: inline-flex;
+    max-width: 0px;
+    max-height: 22px;
+    overflow: hidden;
+    transition: max-width 0.7s ease-out;
+}
+
+.interaction {
+    margin-left: 3px;
+    display: none;
+}
+
+.label {
+    padding-left: 10px;
+}
+
+/* .course-reviews-filter-dropdown-menu {
+
+} */
+
+/* .course-reviews-sort-button {
+
+} */
 
 .course-reviews-toggle-btn {
     color: #A81919;
     cursor: pointer;
-    display: block;
     user-select: none;
     max-width: 105px;
 }

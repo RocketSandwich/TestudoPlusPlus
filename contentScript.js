@@ -1,4 +1,7 @@
 (() => {
+    // import easydropdown from "easydropdown";
+    // const easydropdown = require('easydropdown');
+
     /* Rearranging instructor name for query */
     const swapWords = (professor) => {
         const words = professor.split(' ');
@@ -132,6 +135,23 @@
         const legend = document.createElement("legend");
         legend.className = "course-reviews-header";
 
+        const reviewsCriteria = document.createElement("div");
+        reviewsCriteria.className = "reviews-criteria";
+
+        const filterHeader = document.createElement("div");
+        filterHeader.className = "course-reviews-filter-header label";
+        filterHeader.textContent = "Filter By: ";
+
+        const filterBy = document.createElement("select");
+        filterBy.className = "course-reviews-filter-dropdown-menu interaction";
+
+        const sortHeader = document.createElement("div");
+        sortHeader.className = "course-reviews-sort-header label";
+        sortHeader.textContent = "Sort By: ";
+
+        const sortBy = document.createElement("button");
+        sortBy.className = "course-reviews-sort-button interaction";
+
         const courseReviewsToggleBtn = document.createElement("a");
         courseReviewsToggleBtn.className = "course-reviews-toggle-btn";
         courseReviewsToggleBtn.title = "View student reviews in-screen";
@@ -146,13 +166,25 @@
         const toggleText = document.createElement("span");
         toggleText.textContent = "Show Reviews";
 
+        // Add drop-down-menu here
+        //   - Compares profs listed in curr sections and compares w/ profs listed in API resp
+        //   - 2 Groups: "Current Instructors" & "Previous Instructors"
+        //   - Get rid of duplicates
+        //   - When professor is selected, filter by their reviews
+        //   - + Make the 2 groups selectable to filter by "all current" & "all previous" instructors 
+
         const courseReviewsBody = document.createElement("div");
         courseReviewsBody.className = "course-reviews-body";
 
         // Joining containers appropriately
         courseReviewsToggleBtn.appendChild(arrowIcon2);
         courseReviewsToggleBtn.appendChild(toggleText);
+        reviewsCriteria.appendChild(filterHeader);
+        reviewsCriteria.appendChild(filterBy);
+        reviewsCriteria.appendChild(sortHeader);
+        reviewsCriteria.appendChild(sortBy);
         legend.appendChild(courseReviewsToggleBtn);
+        legend.appendChild(reviewsCriteria);
         courseReviewsFieldset.appendChild(legend);
         courseReviewsFieldset.appendChild(courseReviewsBody);
         courseReviewsContainer.appendChild(courseReviewsFieldset);
@@ -227,11 +259,22 @@
                     matchingCourseBody = matchingCourse.getElementsByClassName("course-reviews-body")[0];
                 }
 
+                childElements = reviewsCriteria.children;
+
                 // Shrinking review box
                 if(legend.classList.contains("active")) {
                     matchingCourse = document.getElementById(courseName);
                     matchingCourseBody = matchingCourse.getElementsByClassName("course-reviews-body")[0];
 
+                    // reviewsCriteria.style.maxWidth = "0px";
+                    for(let i = 0; i < childElements.length; i++) {
+                        // childElements[i].style.display = "inline-block";
+                        childElements[i].style.maxWidth = "0px";
+                    }
+                    
+                    // for(let i = 0; i < childElements.length; i++) {
+                    //     childElements[i].style.display = "none";
+                    // }
                     courseReviewsBody.style.maxHeight = "0px";
                     legend.classList.toggle("active");
                     courseReviewsToggleBtn.replaceChild(arrowIcon2, arrowIcon1);
@@ -246,10 +289,21 @@
                     courseReviewsFieldset.style.display = "block";
                     courseReviewsFieldset.style.padding = "13px";
                     courseReviewsFieldset.style.border = "1px solid #ddd";
+                    // reviewsCriteria.style.width = "200px";
+                    // reviewsCriteria.children.style.width = "200px";
+                    for(let i = 0; i < childElements.length; i++) {
+                        // childElements[i].style.display = "inline-block";
+                        childElements[i].style.maxWidth = "100px";
+                    }
+                    // for(let i = 0; i < childElements.length; i++) {
+                    //     childElements[i].style.display = "inline-flex";
+                    // }
 
                     matchingCourse = document.getElementById(courseName);
                     matchingCourseBody = matchingCourse.getElementsByClassName("course-reviews-body")[0];
                     matchingCourseBody.style.display = "block";
+                    filterBy.style.display = "inline-flex";
+                    sortBy.style.display = "inline-flex";
 
                     if(matchingCourseBody.scrollHeight < 450) {
                         matchingCourseBody.style.maxHeight = matchingCourseBody.scrollHeight + "px";
@@ -269,6 +323,16 @@
                 courseReviewsFieldset.style.border = "none";
                 courseReviewsBody.style.display = "none";
                 courseReviewsFieldset.style.display = "contents";
+            }
+        });
+
+        filterHeader.addEventListener("transitionend", () => {
+            if(filterHeader.style.maxWidth === "0px") {
+                filterBy.style.display = "none";
+                sortBy.style.display = "none";
+            } else {
+                filterBy.style.display = "inline-flex";
+                sortBy.style.display = "inline-flex";
             }
         });
     };
