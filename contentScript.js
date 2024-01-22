@@ -203,6 +203,72 @@
 
                     if(data) {
                         reviews = data.reviews;
+                        professors = data.professors;
+
+                        // Event listener for drop-down box
+                        filterBy.addEventListener("input", (event) => {
+
+                            // Super janky way of dynamically adjusting drop-down box size
+                            span = document.createElement('span');
+                            span.style.visibility = 'hidden';
+                            span.style.position = 'absolute';
+                            document.body.appendChild(span);
+                            span.textContent = event.target.value;
+                            w = Math.ceil(getComputedStyle(span).width.split("px")[0]);
+                            event.target.style.maxWidth = (w + 30) + "px";
+                            document.body.removeChild(span);
+
+                        });
+
+                        // Adding professors to drop-down box
+                        if(professors.length == 0) {
+                            const profOption = document.createElement("option");
+                            profOption.className = "professor-option";
+                            profOption.textContent = "No professor reviews yet.";
+                            profOption.disabled = true;
+                            filterBy.appendChild(profOption);
+                        } else {
+                            const optGroup = document.createElement("optgroup");
+                            optGroup.label = "Groups";
+
+                            const allOptions = document.createElement("option");
+                            allOptions.className = "professor-option";
+                            allOptions.textContent = "All Instructors";
+                            allOptions.value = "All Instructors";
+                            allOptions.selected = true;
+
+                            const currentOptions = document.createElement("option");
+                            currentOptions.className = "professor-option";
+                            currentOptions.textContent = "All Current Instructors";
+                            currentOptions.value = "All Current Instructors";
+
+                            const pastOptions = document.createElement("option");
+                            pastOptions.className = "professor-option";
+                            pastOptions.textContent = "All Past Instructors";
+                            pastOptions.value = "All Past Instructors";
+
+                            optGroup.appendChild(allOptions);
+                            optGroup.appendChild(currentOptions);
+                            optGroup.appendChild(pastOptions);
+
+                            const optCurrent = document.createElement("optgroup");
+                            optCurrent.label = "Current Instructors";
+
+                            const optPast = document.createElement("optgroup");
+                            optPast.label = "Past Instructors";
+
+                            for(let i = 0; i < professors.length; i++) {
+                                const profOption = document.createElement("option");
+                                profOption.className = "professor-option";
+                                profOption.textContent = professors[i];
+                                profOption.value = professors[i];
+                                optCurrent.appendChild(profOption);
+                            }
+
+                            filterBy.appendChild(optGroup);
+                            filterBy.appendChild(optCurrent);
+                            filterBy.appendChild(optPast);
+                        }
 
                         // Adding reviews to container body
                         if(reviews.length == 0) {
@@ -292,8 +358,7 @@
                     // reviewsCriteria.style.width = "200px";
                     // reviewsCriteria.children.style.width = "200px";
                     for(let i = 0; i < childElements.length; i++) {
-                        // childElements[i].style.display = "inline-block";
-                        childElements[i].style.maxWidth = "100px";
+                        childElements[i].style.maxWidth = "120px";
                     }
                     // for(let i = 0; i < childElements.length; i++) {
                     //     childElements[i].style.display = "inline-flex";
