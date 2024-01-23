@@ -9,6 +9,5 @@ Future Implementations:
 - Window size adjustment (too extra?)
 - Minor pixel alignments
 - Set link screen to invisible
-- Sort drop-down by alphabetical
 - BAD PLANETTERP API BOOOOOOOOO :( MUST MANUALLY FIX MYSELF :(
     - Prof review present but not listed - manually parse reviews and add them

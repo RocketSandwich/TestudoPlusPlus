@@ -283,7 +283,6 @@
                     if(data) {
                         reviews = data.reviews;
                         professors = new Set(data.professors);
-                        // console.log(professors);
 
                         // Event listener for drop-down box
                         filterBy.addEventListener("input", (event) => {
@@ -292,12 +291,6 @@
                             // Edit reviews box to display only the requested professor(s)
                             const greatGrandpa = event.target.parentNode.parentNode.parentNode;
                             const reviews = greatGrandpa.getElementsByClassName("body-content-header");
-                            // const currentGroup = event.target.getElementsByClassName("current-professors")[0];
-                            // const currProfs = currentGroup.getElementsByClassName("professor-option");
-                            // currProfsArr = [];
-                            // for(let k = 0; k < currProfs.length; k++) {
-                            //     currProfsArr.push(currProfs[k].value);
-                            // }
                             
                             for(let i = 0, j = 0; i < reviews.length; i++) { //★☆
                                 const review = reviews[i].textContent;
@@ -397,7 +390,8 @@
                             optPast.className = "past-professors";
                             optPast.label = "Past Instructors";
 
-                            thisCourseProfs.forEach((value) => {
+                            const sortedProfs = Array.from(thisCourseProfs).sort();
+                            sortedProfs.forEach((value) => {
                                 const profOption = document.createElement("option");
                                 profOption.className = "professor-option";
                                 profOption.textContent = value;
@@ -406,7 +400,8 @@
                                 optCurrent.appendChild(profOption);
                             });
                             
-                            professors.forEach((value) => {
+                            const moreSortedProfs = Array.from(professors).sort();
+                            moreSortedProfs.forEach((value) => {
                                 const profOption = document.createElement("option");
                                 profOption.className = "professor-option";
                                 profOption.textContent = value;
