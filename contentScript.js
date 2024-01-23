@@ -129,7 +129,7 @@
         span.style.visibility = 'hidden';
         span.style.position = 'absolute';
         document.body.appendChild(span);
-        span.textContent = event.target.value;
+        span.textContent = event.value;
         w = Math.ceil(getComputedStyle(span).width.split("px")[0]) + 30;
         document.body.removeChild(span);
 
@@ -290,7 +290,7 @@
 
                         // Event listener for drop-down box
                         filterBy.addEventListener("input", (event) => {
-                            event.target.style.maxWidth = getWidth(event) + "px";
+                            event.target.style.maxWidth = getWidth(event.target) + "px";
 
                             // Edit reviews box to display only the requested professor(s)
                         });
@@ -445,7 +445,13 @@
                     // reviewsCriteria.style.width = "200px";
                     // reviewsCriteria.children.style.width = "200px";
                     for(let i = 0; i < childElements.length; i++) {
-                        childElements[i].style.maxWidth = "120px";
+                        console.log(childElements[i]);
+                        if(childElements[i].className === "course-reviews-filter-dropdown-menu interaction") {
+                            console.log(childElements[i].className);
+                            childElements[i].style.maxWidth = getWidth(childElements[i]) + "px";
+                        } else {
+                            childElements[i].style.maxWidth = "120px";
+                        }
                     }
                     // for(let i = 0; i < childElements.length; i++) {
                     //     childElements[i].style.display = "inline-flex";
