@@ -446,8 +446,9 @@
 
         courseReviewsBody.addEventListener("transitionstart", () => {
             loading = document.getElementById("loading");
-            console.log(loading);
-            loading.remove();
+            if(loading) {
+                loading.remove();
+            }
         });
 
         courseReviewsBody.addEventListener("transitionend", () => {
