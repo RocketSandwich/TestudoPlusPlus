@@ -291,6 +291,9 @@
                             // Edit reviews box to display only the requested professor(s)
                             const greatGrandpa = event.target.parentNode.parentNode.parentNode;
                             const reviews = greatGrandpa.getElementsByClassName("body-content-header");
+                            console.log(greatGrandpa);
+                            const emptySlide = greatGrandpa.querySelector("#empty-review");
+                            emptySlide.style.display = "none";
                             
                             for(let i = 0, j = 0; i < reviews.length; i++) { //★☆
                                 const review = reviews[i].textContent;
@@ -347,6 +350,20 @@
                                         reviews[i].parentNode.style.display = "none";
                                     }
                                 }
+                            }
+                            
+                            // If all are hidden, display text
+                            allHidden = true;
+                            const allReviews = greatGrandpa.querySelectorAll('.course-reviews-body-content');
+                            for(let i = 0; i < allReviews.length; i++) {
+                                if(allReviews[i].style.display !== "none") {
+                                    allHidden = false;
+                                    break;
+                                }
+                            }
+
+                            if(allHidden) {
+                                emptySlide.style.display = "block";
                             }
                         });
 
@@ -418,12 +435,16 @@
                         }
 
                         // Adding reviews to container body
+                        const hiddenCourseReviewsBodyContent = document.createElement("div");
+                        hiddenCourseReviewsBodyContent.id = "empty-review";
+                        hiddenCourseReviewsBodyContent.className = "course-reviews-body-content";
+                        hiddenCourseReviewsBodyContent.textContent = "No course reviews yet. :(";
+                        hiddenCourseReviewsBodyContent.style.backgroundColor = "#eee";
+                        hiddenCourseReviewsBodyContent.style.display = "none";
+                        matchingCourseBody.appendChild(hiddenCourseReviewsBodyContent);
+
                         if(reviews.length == 0) {
-                            const courseReviewsBodyContent = document.createElement("div");
-                            courseReviewsBodyContent.className = "course-reviews-body-content";
-                            courseReviewsBodyContent.style.backgroundColor = "#eee";
-                            courseReviewsBodyContent.textContent = "No course reviews yet. :(";
-                            matchingCourseBody.appendChild(courseReviewsBodyContent);
+                            hiddenCourseReviewsBodyContent.display = "block";
                         } else {
                             for(let j = reviews.length - 1, k = 0; j >= 0; j--, k++) {
                                 const courseReviewsBodyContent = document.createElement("div");
