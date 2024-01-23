@@ -168,8 +168,6 @@
 
     /* Sort By button behavior */
     const sortByClicked = (event) => {
-        // course = document.getElementById(courseName);
-        // btn = course.getElementsByClassName("course-reviews-sort-button interaction");
         btn = event.target;
         btnValue = parseInt(btn.value, 10);
         switch(btnValue % 3) {
@@ -185,7 +183,49 @@
         }
         btnValue++;
         btn.value = btnValue;
-        // Honestly not going to account for overflow
+
+        /* Recent -> Critical -> Favorable -> (repeat) */
+        // elements should store 'data-stars' & 'data-datetime'
+        const reviewsBody = btn.parentNode.parentNode.parentNode.getElementsByClassName("course-reviews-body")[0];
+        const reviews = reviewsBody.getElementsByClassName("course-reviews-body-content");
+        
+        // Recent -> Critical
+        // - Can run in O(5*n) with only 5 loops b/c only 5 stars & already sorted by time
+        // - 1st loop: In order, find all 1-star reviews & move to top
+        // - 2nd loop: Start at index 'j = # of 1-star reviews' & in order, find all 2-star reviews & move to 'i'
+        // - 3rd, 4th, 5th loop: (repeat)
+        if(btn.textContent === "Most Critical") {
+            for(let i = 0, j = 1; i < 5; i++) {
+                for(let k = 0; k < reviews.length; k++) {
+                    const thisReview = reviews[k];
+                    const stars = thisReview.getAttribute("data-stars");
+                    const datetime = thisReview.getAttribute("data-datetime");
+                    if(stars && datetime) {
+                        if(stars == i) {
+                            reviewsBody.insertBefore(thisReview, reviews[j]);
+                            j++;
+                        }
+                    }
+                }
+            }
+        }
+
+        // Critical -> Favorable
+        // - Possibly O(1) since we have them as sorted chunk data
+        // - Move 1-star reviews chunk to end
+        // - Move 2-star reviews chunk to end
+        // - 3rd, 4th: (repeat) When 5-star reviews chunk in front, stop.
+        else if(btn.textContent === "Most Favorable") {
+            
+        }
+
+        // Favorable -> Recent
+        // - Since goal parameter (datetime) is scattered, there is no prior assumption we can make to accelerate this sorting alg
+        // - Use standard sorting alg
+        //   - Merge Sort? O(nlogn)
+        else if(btn.textContent === "Most Recent") {
+            
+        }
     };
 
     const getProfName = (review) => {
@@ -396,8 +436,10 @@
                                 if(k % 2 == 0) {
                                     courseReviewsBodyContent.style.backgroundColor = "#eee";
                                 }
-
+                                
                                 const review = reviews[j];
+                                courseReviewsBodyContent.setAttribute("data-stars", review.rating);
+                                courseReviewsBodyContent.setAttribute("data-datetime", review.created);
                                 const date = new Date(review.created);
                                 const options = {year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric', timeZoneName: 'short'};
                                 const readableDateString = date.toLocaleDateString('en-US', options);
