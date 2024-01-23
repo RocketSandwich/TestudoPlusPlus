@@ -12,4 +12,3 @@ Future Implementations:
 - BAD PLANETTERP API BOOOOOOOOO :( MUST MANUALLY FIX MYSELF :(
     - Prof review present but not listed - manually parse reviews and add them
 - Fix Button overflow visual bug
-- Bug wih filtering??

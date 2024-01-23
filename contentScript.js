@@ -188,6 +188,13 @@
         // Honestly not going to account for overflow
     };
 
+    const getProfName = (review) => {
+        const indexOfEmptyStar = review.indexOf("☆");
+        const indexOfStar = review.indexOf("★");
+        const firstIndex = Math.min(indexOfEmptyStar !== -1 ? indexOfEmptyStar : Infinity, indexOfStar !== -1 ? indexOfStar : Infinity);
+        return review.substring(0, firstIndex - 1);
+    };
+
     /* Establishes native course reviews */
     const setNativeReviews = (courseId, infoContainer, urlParams) => {
 
@@ -296,11 +303,7 @@
                             emptySlide.style.display = "none";
                             
                             for(let i = 0, j = 0; i < reviews.length; i++) { //★☆
-                                const review = reviews[i].textContent;
-                                const indexOfEmptyStar = review.indexOf("☆");
-                                const indexOfStar = review.indexOf("★");
-                                const firstIndex = Math.min(indexOfEmptyStar !== -1 ? indexOfEmptyStar : Infinity, indexOfStar !== -1 ? indexOfStar : Infinity);
-                                const profName = review.substring(0, firstIndex - 1);
+                                const profName = getProfName(reviews[i].textContent);
 
                                 // Bro just pretend rn that the filter list has correct data
                                 if(event.target.value === "All Instructors") {
@@ -375,6 +378,54 @@
                             }
                         });
 
+                        // Adding reviews to container body
+                        const hiddenCourseReviewsBodyContent = document.createElement("div");
+                        hiddenCourseReviewsBodyContent.id = "empty-review";
+                        hiddenCourseReviewsBodyContent.className = "course-reviews-body-content";
+                        hiddenCourseReviewsBodyContent.textContent = "No course reviews yet. :(";
+                        hiddenCourseReviewsBodyContent.style.backgroundColor = "#eee";
+                        hiddenCourseReviewsBodyContent.style.display = "none";
+                        matchingCourseBody.appendChild(hiddenCourseReviewsBodyContent);
+
+                        if(reviews.length == 0) {
+                            hiddenCourseReviewsBodyContent.display = "block";
+                        } else {
+                            for(let j = reviews.length - 1, k = 0; j >= 0; j--, k++) {
+                                const courseReviewsBodyContent = document.createElement("div");
+                                courseReviewsBodyContent.className = "course-reviews-body-content";
+                                if(k % 2 == 0) {
+                                    courseReviewsBodyContent.style.backgroundColor = "#eee";
+                                }
+
+                                const review = reviews[j];
+                                const date = new Date(review.created);
+                                const options = {year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric', timeZoneName: 'short'};
+                                const readableDateString = date.toLocaleDateString('en-US', options);
+                                grade = "";
+                                (review.expected_grade == "") ? (grade = "?") : (grade = review.expected_grade);
+                                const bodyContentHeader = document.createElement("div");
+                                bodyContentHeader.className = "body-content-header";
+                                bodyContentHeader.textContent = review.professor + " " + "★".repeat(review.rating) + "☆".repeat(5 - review.rating) + " | Expecting " + grade + " | " + readableDateString;
+                                professors.add(review.professor);
+
+                                const bodyContentBody = document.createElement("span");
+                                bodyContentBody.textContent = review.review;
+
+                                courseReviewsBodyContent.appendChild(bodyContentHeader);
+                                courseReviewsBodyContent.appendChild(bodyContentBody);
+
+                                /* Test Content */
+                                // Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                                // Eget mauris pharetra et ultrices neque ornare aenean. Auctor eu augue ut lectus arcu bibendum at varius vel. Duis at consectetur lorem donec massa sapien faucibus.
+                                // Mauris sit amet massa vitae tortor condimentum lacinia quis vel. Lobortis elementum nibh tellus molestie nunc. Fermentum odio eu feugiat pretium nibh.
+                                // Cursus euismod quis viverra nibh cras pulvinar mattis nunc sed. Amet tellus cras adipiscing enim. Pellentesque habitant morbi tristique senectus et netus et malesuada fames.
+                                // Laoreet sit amet cursus sit amet dictum sit amet. Lorem ipsum dolor sit amet consectetur adipiscing. Nibh praesent tristique magna sit amet.
+                                // Lectus mauris ultrices eros in cursus turpis massa. Eu feugiat pretium nibh ipsum. Sit amet consectetur adipiscing elit ut aliquam purus sit amet.
+                                // Tempor orci eu lobortis elementum nibh tellus molestie nunc. Risus in hendrerit gravida rutrum quisque non tellus orci ac. Elit pellentesque habitant morbi tristique senectus et netus.
+                                matchingCourseBody.appendChild(courseReviewsBodyContent);
+                            }
+                        }
+
                         // Adding professors to drop-down box
                         if(professors.size == 0) {
                             const profOption = document.createElement("option");
@@ -440,53 +491,6 @@
                             filterBy.appendChild(optGroup);
                             filterBy.appendChild(optCurrent);
                             filterBy.appendChild(optPast);
-                        }
-
-                        // Adding reviews to container body
-                        const hiddenCourseReviewsBodyContent = document.createElement("div");
-                        hiddenCourseReviewsBodyContent.id = "empty-review";
-                        hiddenCourseReviewsBodyContent.className = "course-reviews-body-content";
-                        hiddenCourseReviewsBodyContent.textContent = "No course reviews yet. :(";
-                        hiddenCourseReviewsBodyContent.style.backgroundColor = "#eee";
-                        hiddenCourseReviewsBodyContent.style.display = "none";
-                        matchingCourseBody.appendChild(hiddenCourseReviewsBodyContent);
-
-                        if(reviews.length == 0) {
-                            hiddenCourseReviewsBodyContent.display = "block";
-                        } else {
-                            for(let j = reviews.length - 1, k = 0; j >= 0; j--, k++) {
-                                const courseReviewsBodyContent = document.createElement("div");
-                                courseReviewsBodyContent.className = "course-reviews-body-content";
-                                if(k % 2 == 0) {
-                                    courseReviewsBodyContent.style.backgroundColor = "#eee";
-                                }
-
-                                const review = reviews[j];
-                                const date = new Date(review.created);
-                                const options = {year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric', timeZoneName: 'short'};
-                                const readableDateString = date.toLocaleDateString('en-US', options);
-                                grade = "";
-                                (review.expected_grade == "") ? (grade = "?") : (grade = review.expected_grade);
-                                const bodyContentHeader = document.createElement("div");
-                                bodyContentHeader.className = "body-content-header";
-                                bodyContentHeader.textContent = review.professor + " " + "★".repeat(review.rating) + "☆".repeat(5 - review.rating) + " | Expecting " + grade + " | " + readableDateString;
-                                
-                                const bodyContentBody = document.createElement("span");
-                                bodyContentBody.textContent = review.review;
-
-                                courseReviewsBodyContent.appendChild(bodyContentHeader);
-                                courseReviewsBodyContent.appendChild(bodyContentBody);
-
-                                /* Test Content */
-                                // Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                                // Eget mauris pharetra et ultrices neque ornare aenean. Auctor eu augue ut lectus arcu bibendum at varius vel. Duis at consectetur lorem donec massa sapien faucibus.
-                                // Mauris sit amet massa vitae tortor condimentum lacinia quis vel. Lobortis elementum nibh tellus molestie nunc. Fermentum odio eu feugiat pretium nibh.
-                                // Cursus euismod quis viverra nibh cras pulvinar mattis nunc sed. Amet tellus cras adipiscing enim. Pellentesque habitant morbi tristique senectus et netus et malesuada fames.
-                                // Laoreet sit amet cursus sit amet dictum sit amet. Lorem ipsum dolor sit amet consectetur adipiscing. Nibh praesent tristique magna sit amet.
-                                // Lectus mauris ultrices eros in cursus turpis massa. Eu feugiat pretium nibh ipsum. Sit amet consectetur adipiscing elit ut aliquam purus sit amet.
-                                // Tempor orci eu lobortis elementum nibh tellus molestie nunc. Risus in hendrerit gravida rutrum quisque non tellus orci ac. Elit pellentesque habitant morbi tristique senectus et netus.
-                                matchingCourseBody.appendChild(courseReviewsBodyContent);
-                            }
                         }
                     } else {
                         const courseReviewsBodyContent = document.createElement("div");
