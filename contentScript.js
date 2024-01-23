@@ -1,7 +1,4 @@
 (() => {
-    // import easydropdown from "easydropdown";
-    // const easydropdown = require('easydropdown');
-
 
     /* Rearranging instructor name for query */
     const swapWords = (professor) => {
@@ -169,6 +166,31 @@
         }
     };
 
+    /* Sort By button behavior */
+    const sortByClicked = (event) => {
+        // course = document.getElementById(courseName);
+        // btn = course.getElementsByClassName("course-reviews-sort-button interaction");
+        btn = event.target;
+        console.log(btn);
+        btnValue = parseInt(btn.value, 10);
+        console.log(btnValue);
+        switch(btnValue % 3) {
+            case 0:
+                btn.textContent = "Most Critical";
+                break;
+            case 1:
+                btn.textContent = "Most Favorable";
+                break;
+            case 2:
+                btn.textContent = "Most Recent";
+                break;
+        }
+        btnValue++;
+        btn.value = btnValue;
+        console.log(btn.value);
+        // Honestly not going to account for overflow
+    };
+
     /* Establishes native course reviews */
     const setNativeReviews = (courseId, infoContainer, urlParams) => {
 
@@ -198,6 +220,9 @@
 
         const sortBy = document.createElement("button");
         sortBy.className = "course-reviews-sort-button interaction";
+        sortBy.textContent = "Most Recent";
+        sortBy.value = 0;
+        sortBy.onclick = sortByClicked;
 
         const courseReviewsToggleBtn = document.createElement("a");
         courseReviewsToggleBtn.className = "course-reviews-toggle-btn";
