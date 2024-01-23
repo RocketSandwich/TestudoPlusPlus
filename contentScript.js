@@ -291,36 +291,68 @@
 
                             // Edit reviews box to display only the requested professor(s)
                             const greatGrandpa = event.target.parentNode.parentNode.parentNode;
-                            // console.log(greatGrandpa);
                             const reviews = greatGrandpa.getElementsByClassName("body-content-header");
-                            // console.log(reviews);
+                            // const currentGroup = event.target.getElementsByClassName("current-professors")[0];
+                            // const currProfs = currentGroup.getElementsByClassName("professor-option");
+                            // currProfsArr = [];
+                            // for(let k = 0; k < currProfs.length; k++) {
+                            //     currProfsArr.push(currProfs[k].value);
+                            // }
                             
                             for(let i = 0, j = 0; i < reviews.length; i++) { //★☆
                                 const review = reviews[i].textContent;
-                                // console.log(review);
                                 const indexOfEmptyStar = review.indexOf("☆");
                                 const indexOfStar = review.indexOf("★");
-                                // console.log(indexOfEmptyStar + " vs " + indexOfStar);
                                 const firstIndex = Math.min(indexOfEmptyStar !== -1 ? indexOfEmptyStar : Infinity, indexOfStar !== -1 ? indexOfStar : Infinity);
                                 const profName = review.substring(0, firstIndex - 1);
-                                // console.log(i + " - " + profName);
 
-                                // console.log(event.target.value +" vs "+profName);
-                                if(event.target.value === profName) {
-                                    // console.log("Matching prof!, j = " + j);
+                                // Bro just pretend rn that the filter list has correct data
+                                if(event.target.value === "All Instructors") {
                                     if(j % 2 == 0) {
-                                        // console.log("Grey Background!");
                                         reviews[i].parentNode.style.backgroundColor = "#eee";
                                     } else {
-                                        // console.log("White Background!");
                                         reviews[i].parentNode.style.backgroundColor = "transparent";
                                     }
                                     j++;
                                     reviews[i].parentNode.style.display = "block";
+                                } else if(event.target.value === "All Current Instructors") {
+                                    if(thisCourseProfs.has(profName)) {
+                                        // console.log("Hit All Current Instructors!", profName);
+                                        if(j % 2 == 0) {
+                                            reviews[i].parentNode.style.backgroundColor = "#eee";
+                                        } else {
+                                            reviews[i].parentNode.style.backgroundColor = "transparent";
+                                        }
+                                        j++;
+                                        reviews[i].parentNode.style.display = "block";
+                                    } else {
+                                        reviews[i].parentNode.style.display = "none";
+                                    }
+                                } else if(event.target.value === "All Past Instructors") {
+                                    if(!thisCourseProfs.has(profName)) {
+                                        // console.log("Hit All Past Instructors!", profName);
+                                        if(j % 2 == 0) {
+                                            reviews[i].parentNode.style.backgroundColor = "#eee";
+                                        } else {
+                                            reviews[i].parentNode.style.backgroundColor = "transparent";
+                                        }
+                                        j++;
+                                        reviews[i].parentNode.style.display = "block";
+                                    } else {
+                                        reviews[i].parentNode.style.display = "none";
+                                    }
                                 } else {
-                                    // console.log("Different prof!");
-                                    // console.log(reviews[i].parentNode);
-                                    reviews[i].parentNode.style.display = "none";
+                                    if(event.target.value === profName) {
+                                        if(j % 2 == 0) {
+                                            reviews[i].parentNode.style.backgroundColor = "#eee";
+                                        } else {
+                                            reviews[i].parentNode.style.backgroundColor = "transparent";
+                                        }
+                                        j++;
+                                        reviews[i].parentNode.style.display = "block";
+                                    } else {
+                                        reviews[i].parentNode.style.display = "none";
+                                    }
                                 }
                             }
                         });
@@ -334,6 +366,7 @@
                             filterBy.appendChild(profOption);
                         } else {
                             const optGroup = document.createElement("optgroup");
+                            optGroup.className = "groups";
                             optGroup.label = "Groups";
 
                             const allOptions = document.createElement("option");
@@ -357,9 +390,11 @@
                             optGroup.appendChild(pastOptions);
 
                             const optCurrent = document.createElement("optgroup");
+                            optCurrent.className = "current-professors";
                             optCurrent.label = "Current Instructors";
 
                             const optPast = document.createElement("optgroup");
+                            optPast.className = "past-professors";
                             optPast.label = "Past Instructors";
 
                             thisCourseProfs.forEach((value) => {
