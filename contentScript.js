@@ -291,7 +291,7 @@
                             // Edit reviews box to display only the requested professor(s)
                             const greatGrandpa = event.target.parentNode.parentNode.parentNode;
                             const reviews = greatGrandpa.getElementsByClassName("body-content-header");
-                            console.log(greatGrandpa);
+                            // console.log(greatGrandpa);
                             const emptySlide = greatGrandpa.querySelector("#empty-review");
                             emptySlide.style.display = "none";
                             
@@ -355,6 +355,7 @@
                             // If all are hidden, display text
                             allHidden = true;
                             const allReviews = greatGrandpa.querySelectorAll('.course-reviews-body-content');
+                            const contentBody = allReviews[0].parentNode;
                             for(let i = 0; i < allReviews.length; i++) {
                                 if(allReviews[i].style.display !== "none") {
                                     allHidden = false;
@@ -364,6 +365,13 @@
 
                             if(allHidden) {
                                 emptySlide.style.display = "block";
+                            }
+
+                            // console.log(contentBody);
+                            if(contentBody.scrollHeight < 450) {
+                                contentBody.style.maxHeight = contentBody.scrollHeight + "px";
+                            } else {
+                                contentBody.style.maxHeight = "450px";
                             }
                         });
 
@@ -542,6 +550,7 @@
                     filterBy.style.display = "inline-flex";
                     sortBy.style.display = "inline-flex";
 
+                    // console.log("height -", matchingCourseBody.scrollHeight);
                     if(matchingCourseBody.scrollHeight < 450) {
                         matchingCourseBody.style.maxHeight = matchingCourseBody.scrollHeight + "px";
                     } else {
