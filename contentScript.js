@@ -65,7 +65,7 @@
     };
 
     /* Insert professor links */
-    const setProfLinks = (thisCourse, thisCourseProfs) => {
+    const setProfLinks = (thisCourse) => {
         sections = document.getElementById(thisCourse).getElementsByClassName("section-instructors");
 
         // Per section
@@ -77,7 +77,7 @@
                 if(j > 0) {
                     setBreak(sectionProfs[j]);
                 }
-                thisCourseProfs.add(sectionProfs[j].textContent);
+
                 setPTLink(sectionProfs[j], "professor");
                 setRMPLink(sectionProfs[j]);
             }
@@ -124,8 +124,53 @@
         }
     };
 
+    /* Get Instructor Name Width */
+    const getWidth = (event) => {
+
+        // Super janky way of dynamically adjusting drop-down box size
+        span = document.createElement('span');
+        span.style.visibility = 'hidden';
+        span.style.position = 'absolute';
+        document.body.appendChild(span);
+        span.textContent = event.target.value;
+        w = Math.ceil(getComputedStyle(span).width.split("px")[0]) + 30;
+        document.body.removeChild(span);
+
+        return w;
+    };
+
+    /* Testing fetch native */
+    const fetchSections = async (courseName, urlParams) => {
+        try {
+            // course = document.getElementById(courseName);
+            // sectionsLink = course.getElementsByClassName("toggle-sections-link")[0];
+            // ^^ Weirdly, sometimes the sections href link doesn't work, so going to manually fetch search query
+            const response = await fetch("/soc/search?courseId=" + courseName + "&sectionId=&termId=" + urlParams.termId + "&_openSectionsOnly=on&creditCompare=&credits=&genEdCode=ALL&courseLevelFilter=ALL&instructor=&_facetoface=on&_blended=on&_online=on&courseStartCompare=&courseStartHour=&courseStartMin=&courseStartAM=&courseEndHour=&courseEndMin=&courseEndAM=&teachingCenter=ALL&_classDay1=on&_classDay2=on&_classDay3=on&_classDay4=on&_classDay5=on");
+             
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+    
+            const htmlString = await response.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(htmlString, 'text/html');
+            const prof = doc.getElementsByClassName("section-instructor");
+            thisCourseProfs = new Set();
+            for(let i = 0; i < prof.length; i++) {
+                console.log(prof[i].textContent);
+                thisCourseProfs.add(prof[i].textContent);
+            }
+
+            return thisCourseProfs;
+        } catch (error) {
+            console.log("Error during fetch:", error);
+            return undefined;
+            // throw error; 
+        }
+    };
+
     /* Establishes native course reviews */
-    const setNativeReviews = (courseId, infoContainer, thisCourseProfs) => {
+    const setNativeReviews = (courseId, infoContainer, urlParams) => {
 
         // Creating containers
         const courseReviewsContainer = document.createElement("div");
@@ -196,6 +241,8 @@
         (function(courseName) {
             courseReviewsToggleBtn.addEventListener('click', async () => {
 
+                const thisCourseProfs = await fetchSections(courseName, urlParams);
+
                 // Prevents redundant PT API calls
                 if(!legend.classList.contains("fetched")) {
                     legend.classList.add("fetched");
@@ -210,16 +257,7 @@
 
                         // Event listener for drop-down box
                         filterBy.addEventListener("input", (event) => {
-
-                            // Super janky way of dynamically adjusting drop-down box size
-                            span = document.createElement('span');
-                            span.style.visibility = 'hidden';
-                            span.style.position = 'absolute';
-                            document.body.appendChild(span);
-                            span.textContent = event.target.value;
-                            w = Math.ceil(getComputedStyle(span).width.split("px")[0]);
-                            event.target.style.maxWidth = (w + 30) + "px";
-                            document.body.removeChild(span);
+                            event.target.style.maxWidth = getWidth(event) + "px";
 
                             // Edit reviews box to display only the requested professor(s)
                         });
@@ -447,7 +485,6 @@
 
             // Per course
             for(let i = 0; i < courses.length; i++) {
-                thisCourseProfs = new Set();
                 thisCourse = courses[i];
                 infoContainer = thisCourse.getElementsByClassName("course-info-container")[0];
                 courseId = thisCourse.getElementsByClassName("course-id")[0];
@@ -458,7 +495,7 @@
 
                 // Establishing initial instructor links
                 if(expanded) {
-                    setProfLinks(courseId.textContent, thisCourseProfs);
+                    setProfLinks(courseId.textContent);
                 }
 
                 // Establishing event listeners for section toggle
@@ -475,13 +512,13 @@
                             // within interval of when eventListener was established and when it is triggered 
                             hasLinks2 = document.getElementById(name).getElementsByClassName("rmpreviews-btn").length > 0;
                             if(!hasLinks2) {
-                                setTimeout(setProfLinks, 500, name, thisCourseProfs);
+                                setTimeout(setProfLinks, 500, name, obj);
                             }
                         }, {once: true});
                     })(courseId.textContent);
                 }
 
-                setNativeReviews(courseId, infoContainer, thisCourseProfs);
+                setNativeReviews(courseId, infoContainer, obj);
             }
         }
     });

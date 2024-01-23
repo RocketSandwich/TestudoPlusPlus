@@ -9,3 +9,4 @@ Future Implementations:
 - Window size adjustment (too extra?)
 - Minor pixel alignments
 - Load notification upon fetch so user understands time delay
+- Set link screen to invisible
