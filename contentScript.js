@@ -239,13 +239,21 @@
 
         // Immediately-invoked func expr (IIFE) used to retain "memory" link between correct button & course
         (function(courseName) {
-            courseReviewsToggleBtn.addEventListener('click', async () => {
+            courseReviewsToggleBtn.addEventListener('click', async (event) => {
 
                 const thisCourseProfs = await fetchSections(courseName, urlParams);
 
                 // Prevents redundant PT API calls
                 if(!legend.classList.contains("fetched")) {
                     legend.classList.add("fetched");
+
+                    // "Loading" visual
+                    const loading = document.createElement("img");
+                    loading.src = chrome.runtime.getURL("assets/ajax-loader.gif");
+                    loading.id = "loading";
+                    loading.alt = "loading...";
+                    event.target.parentNode.parentNode.appendChild(loading);
+
                     data = await fetchReviewsData(courseName);
                     matchingCourse = document.getElementById(courseName);
                     matchingCourseBody = matchingCourse.getElementsByClassName("course-reviews-body")[0];
@@ -435,6 +443,12 @@
                 }
             });
         })(courseId.textContent);
+
+        courseReviewsBody.addEventListener("transitionstart", () => {
+            loading = document.getElementById("loading");
+            console.log(loading);
+            loading.remove();
+        });
 
         courseReviewsBody.addEventListener("transitionend", () => {
             if(courseReviewsBody.style.maxHeight === "0px") {
