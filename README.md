@@ -9,3 +9,5 @@ Future Implementations:
 - Window size adjustment (too extra?)
 - Minor pixel alignments
 - Set link screen to invisible
+- Sort drop-down by alphabetical
+- BAD PLANETTERP API BOOOOOOOOO :(

@@ -154,7 +154,7 @@
             const prof = doc.getElementsByClassName("section-instructor");
             thisCourseProfs = new Set();
             for(let i = 0; i < prof.length; i++) {
-                console.log(prof[i].textContent);
+                // console.log(prof[i].textContent);
                 thisCourseProfs.add(prof[i].textContent);
             }
 
@@ -171,9 +171,7 @@
         // course = document.getElementById(courseName);
         // btn = course.getElementsByClassName("course-reviews-sort-button interaction");
         btn = event.target;
-        console.log(btn);
         btnValue = parseInt(btn.value, 10);
-        console.log(btnValue);
         switch(btnValue % 3) {
             case 0:
                 btn.textContent = "Most Critical";
@@ -187,7 +185,6 @@
         }
         btnValue++;
         btn.value = btnValue;
-        console.log(btn.value);
         // Honestly not going to account for overflow
     };
 
@@ -293,6 +290,39 @@
                             event.target.style.maxWidth = getWidth(event.target) + "px";
 
                             // Edit reviews box to display only the requested professor(s)
+                            const greatGrandpa = event.target.parentNode.parentNode.parentNode;
+                            // console.log(greatGrandpa);
+                            const reviews = greatGrandpa.getElementsByClassName("body-content-header");
+                            // console.log(reviews);
+                            
+                            for(let i = 0, j = 0; i < reviews.length; i++) { //★☆
+                                const review = reviews[i].textContent;
+                                // console.log(review);
+                                const indexOfEmptyStar = review.indexOf("☆");
+                                const indexOfStar = review.indexOf("★");
+                                // console.log(indexOfEmptyStar + " vs " + indexOfStar);
+                                const firstIndex = Math.min(indexOfEmptyStar !== -1 ? indexOfEmptyStar : Infinity, indexOfStar !== -1 ? indexOfStar : Infinity);
+                                const profName = review.substring(0, firstIndex - 1);
+                                // console.log(i + " - " + profName);
+
+                                // console.log(event.target.value +" vs "+profName);
+                                if(event.target.value === profName) {
+                                    // console.log("Matching prof!, j = " + j);
+                                    if(j % 2 == 0) {
+                                        // console.log("Grey Background!");
+                                        reviews[i].parentNode.style.backgroundColor = "#eee";
+                                    } else {
+                                        // console.log("White Background!");
+                                        reviews[i].parentNode.style.backgroundColor = "transparent";
+                                    }
+                                    j++;
+                                    reviews[i].parentNode.style.display = "block";
+                                } else {
+                                    // console.log("Different prof!");
+                                    // console.log(reviews[i].parentNode);
+                                    reviews[i].parentNode.style.display = "none";
+                                }
+                            }
                         });
 
                         // Adding professors to drop-down box
@@ -445,9 +475,7 @@
                     // reviewsCriteria.style.width = "200px";
                     // reviewsCriteria.children.style.width = "200px";
                     for(let i = 0; i < childElements.length; i++) {
-                        console.log(childElements[i]);
                         if(childElements[i].className === "course-reviews-filter-dropdown-menu interaction") {
-                            console.log(childElements[i].className);
                             childElements[i].style.maxWidth = getWidth(childElements[i]) + "px";
                         } else {
                             childElements[i].style.maxWidth = "120px";
