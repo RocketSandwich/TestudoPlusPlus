@@ -179,12 +179,15 @@
         
         sortedReviews.forEach((element) => reviewsBody.appendChild(element));
         rvws = reviewsBody.querySelectorAll('[data-datetime]');
-        
-        for(let i = 0; i < rvws.length; i++) {
-            if(i % 2 == 0) {
-                rvws[i].style.backgroundColor = "#eee";
-            } else {
-                rvws[i].style.backgroundColor = "transparent";
+
+        for(let i = 0, j = 0; i < rvws.length; i++) {
+            if(rvws[i].style.display === "block") {
+                if(j % 2 == 0) {
+                    rvws[i].style.backgroundColor = "#eee";
+                } else {
+                    rvws[i].style.backgroundColor = "transparent";
+                }
+                j++;
             }
         }
     };
@@ -210,7 +213,7 @@
         /* Recent -> Critical -> Favorable -> (repeat) */
         // elements should store 'data-stars' & 'data-datetime'
         const reviewsBody = btn.parentNode.parentNode.parentNode.getElementsByClassName("course-reviews-body")[0];
-        const reviews = reviewsBody.getElementsByClassName("course-reviews-body-content");
+        reviews = reviewsBody.getElementsByClassName("course-reviews-body-content");
         
         // Recent -> Critical
         // - Can run in O(5*n) with only 5 loops b/c only 5 stars & already sorted by time
@@ -232,11 +235,22 @@
                 }
             }
 
-            for(let i = 0; i < reviews.length; i++) {
-                if(i % 2 == 0) {
-                    reviews[i].style.backgroundColor = "transparent";
-                } else {
-                    reviews[i].style.backgroundColor = "#eee";
+            // const visibleReviews = reviewsBody.querySelectorAll('[style*="display: block;"]');
+            // console.log(visibleReviews.length);
+            // reviews = reviewsBody.querySelectorAll('[data-datetime]');
+            for(let i = 0, j = 0; i < reviews.length; i++) {
+                // console.log(i);
+                // console.log(reviews[i]);
+                // console.log(reviews[i].style.display);
+                // console.log(visibleReviews[i]);
+                if(reviews[i].style.display === "block") {
+                    if(j % 2 == 0) {
+                        reviews[i].style.backgroundColor = "#eee";
+                    } else {
+                        reviews[i].style.backgroundColor = "transparent";
+                    }
+                    // console.log(reviews[i]);
+                    j++;
                 }
             }
         }
@@ -279,11 +293,15 @@
                 m++;
             }
 
-            for(let i = 0; i < reviews.length; i++) {
-                if(i % 2 == 0) {
-                    reviews[i].style.backgroundColor = "transparent";
-                } else {
-                    reviews[i].style.backgroundColor = "#eee";
+            for(let i = 0, j = 0; i < reviews.length; i++) {
+                if(reviews[i].style.display === "block") {
+                    if(j % 2 == 0) {
+                        reviews[i].style.backgroundColor = "#eee";
+                    } else {
+                        reviews[i].style.backgroundColor = "transparent";
+                    }
+                    // console.log(reviews[i]);
+                    j++;
                 }
             }
         }
@@ -379,6 +397,7 @@
             courseReviewsToggleBtn.addEventListener('click', async (event) => {
 
                 const thisCourseProfs = await fetchSections(courseName, urlParams);
+                // console.log(thisCourseProfs);
 
                 // Prevents redundant PT API calls
                 if(!legend.classList.contains("fetched")) {
@@ -501,6 +520,7 @@
                             for(let j = reviews.length - 1, k = 0; j >= 0; j--, k++) {
                                 const courseReviewsBodyContent = document.createElement("div");
                                 courseReviewsBodyContent.className = "course-reviews-body-content";
+                                courseReviewsBodyContent.style.display = "block";
                                 if(k % 2 == 0) {
                                     courseReviewsBodyContent.style.backgroundColor = "#eee";
                                 }
