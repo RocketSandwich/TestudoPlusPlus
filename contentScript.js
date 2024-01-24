@@ -166,6 +166,29 @@
         }
     };
 
+    /* Sorts reviews in chronological order */
+    const sortChrono = (reviewsBody) => {
+        rvws = reviewsBody.querySelectorAll('[data-datetime]');
+        const reviewsArr = Array.from(rvws);
+        
+        const sortedReviews = reviewsArr.sort((a, b) => {
+            const dateA = new Date(a.dataset.datetime);
+            const dateB = new Date(b.dataset.datetime);
+            return dateB - dateA;
+        });
+        
+        sortedReviews.forEach((element) => reviewsBody.appendChild(element));
+        rvws = reviewsBody.querySelectorAll('[data-datetime]');
+        
+        for(let i = 0; i < rvws.length; i++) {
+            if(i % 2 == 0) {
+                rvws[i].style.backgroundColor = "#eee";
+            } else {
+                rvws[i].style.backgroundColor = "transparent";
+            }
+        }
+    };
+
     /* Sort By button behavior */
     const sortByClicked = (event) => {
         btn = event.target;
@@ -208,26 +231,71 @@
                     }
                 }
             }
+
+            for(let i = 0; i < reviews.length; i++) {
+                if(i % 2 == 0) {
+                    reviews[i].style.backgroundColor = "transparent";
+                } else {
+                    reviews[i].style.backgroundColor = "#eee";
+                }
+            }
         }
 
         // Critical -> Favorable
-        // - Possibly O(1) since we have them as sorted chunk data
-        // - Move 1-star reviews chunk to end
-        // - Move 2-star reviews chunk to end
+        // - Possibly O(n) since we have them as sorted chunk data
+        // - Move 1-star reviews chunk as end chunk
+        // - Move 2-star reviews chunk to end-1 chunk
         // - 3rd, 4th: (repeat) When 5-star reviews chunk in front, stop.
-        else if(btn.textContent === "Most Favorable") {
-            
-        }
 
+        // Vs swap 1-star & 5-star chunks,
+        //    swap 2-star & 4-star chunks
+        else if(btn.textContent === "Most Favorable") {
+            i = 1;
+            while(reviews[1].getAttribute("data-stars") == 1) {
+                reviewsBody.appendChild(reviews[1]);
+                i++;
+            }
+            
+            while(reviews[1].getAttribute("data-stars") == 2) {
+                reviewsBody.insertBefore(reviews[1], reviews[reviews.length - i + 1]);
+            }
+            
+            k = 1;
+            while(reviews[k].getAttribute("data-stars") == 3) {
+                k++;
+            }
+
+            l = 1;
+            while(reviews[k].getAttribute("data-stars") == 4) {
+                reviewsBody.insertBefore(reviews[k], reviews[l]);
+                k++;
+                l++;
+            }
+
+            m = 1;
+            while(reviews[k].getAttribute("data-stars") == 5) {
+                reviewsBody.insertBefore(reviews[k], reviews[m]);
+                k++;
+                m++;
+            }
+
+            for(let i = 0; i < reviews.length; i++) {
+                if(i % 2 == 0) {
+                    reviews[i].style.backgroundColor = "transparent";
+                } else {
+                    reviews[i].style.backgroundColor = "#eee";
+                }
+            }
+        }
+        
         // Favorable -> Recent
         // - Since goal parameter (datetime) is scattered, there is no prior assumption we can make to accelerate this sorting alg
-        // - Use standard sorting alg
-        //   - Merge Sort? O(nlogn)
+        // - Use standard sorting alg/function
         else if(btn.textContent === "Most Recent") {
-            
+            sortChrono(reviewsBody);
         }
     };
-
+    
     const getProfName = (review) => {
         const indexOfEmptyStar = review.indexOf("☆");
         const indexOfStar = review.indexOf("★");
@@ -466,6 +534,8 @@
                                 // Tempor orci eu lobortis elementum nibh tellus molestie nunc. Risus in hendrerit gravida rutrum quisque non tellus orci ac. Elit pellentesque habitant morbi tristique senectus et netus.
                                 matchingCourseBody.appendChild(courseReviewsBodyContent);
                             }
+
+                            sortChrono(matchingCourseBody);
                         }
 
                         // Adding professors to drop-down box
