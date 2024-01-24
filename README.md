@@ -15,3 +15,13 @@ Future Implementations:
 - More bad API data
     - Reviews are not in chronological order
 - Minor bug when sorting by most favorable
+
+1) Use MutationObserver
+    - Section professor links
+2) Use professor API
+    - Retrieve correct 'slug'
+    - Display average rating
+3) Use courses API
+    - Display average course gpa
+
+- Err on CMSC100? (nullptr)

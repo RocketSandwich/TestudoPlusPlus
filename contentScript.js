@@ -6,17 +6,44 @@
         [words[0], words[1]] = [words[1], words[0]];
         const resultString = words.join('_');
         return resultString;
-    }
+    };
+
+    const fetchProf = async (name) => {
+        try {
+            const response = await fetch("https://planetterp.com/api/v1/professor?name=" + name);
+    
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+    
+            const data = await response.json();
+            console.log(data); 
+            return data;
+        } catch (error) {
+            console.log("Error during fetch:", error);
+            return undefined;
+            // throw error; 
+        }
+    };
 
     /* Injects PT link */
-    const setPTLink = (subdir, type) => {
-        const name = subdir.textContent;
-        const PTLink = document.createElement("a");
-        if(type == "course") {
-            PTLink.href = "https://planetterp.com/" + type + "/" + name;
-        } else {
-            PTLink.href = "https://planetterp.com/" + type + "/" + swapWords(name);
+    const setPTLink = async (subdir, type, profSet) => {
+        specificTitle = subdir.textContent;
+        // console.log("insideFunction");
+        // console.log(specificTitle);
+        // console.log(profSet);
+        if(type == "professor") {
+            // console.log("has title? -", specificTitle in profSet);
+            if(!(specificTitle in profSet)) {
+                const data = await fetchProf(encodeURI(specificTitle));
+                profSet[data.name] = data.slug;
+                specificTitle = data.slug;
+            } else {
+                specificTitle = profSet[specificTitle];
+            }
         }
+        const PTLink = document.createElement("a");
+        PTLink.href = "https://planetterp.com/" + type + "/" + specificTitle;
 
         PTLink.target = "_blank";
         PTLink.className = "ptreviews-btn";
@@ -62,10 +89,11 @@
     };
 
     /* Insert professor links */
-    const setProfLinks = (thisCourse) => {
+    const setProfLinks = async (thisCourse) => {
         sections = document.getElementById(thisCourse).getElementsByClassName("section-instructors");
 
         // Per section
+        profSet = new Object();
         for(let i = 0; i < sections.length; i++) {
             sectionProfs = sections[i].getElementsByClassName("section-instructor");
 
@@ -75,9 +103,11 @@
                     setBreak(sectionProfs[j]);
                 }
 
-                setPTLink(sectionProfs[j], "professor");
+                // console.log("trying to set links...");
+                await setPTLink(sectionProfs[j], "professor", profSet);
                 setRMPLink(sectionProfs[j]);
             }
+            // console.log(profSet);
         }
     };
 
@@ -265,7 +295,7 @@
         //    swap 2-star & 4-star chunks
         else if(btn.textContent === "Most Favorable") {
             i = 1;
-            while(reviews[1].getAttribute("data-stars") == 1) {
+            while(reviews[1].getAttribute("data-stars") == 1 && i < reviews.length) {
                 reviewsBody.appendChild(reviews[1]);
                 i++;
             }
@@ -739,12 +769,12 @@
          *   - YQL bot? (extra yahoo dependency)
          *   - ✓✓ html parse to find 404 err + load double webpage (DOM dependency)
          */
-        if(obj.webpage === 'planetterp') {
-            fourZeroFour = (document.getElementById("content").getElementsByClassName("py-4").length > 0);
-            if(fourZeroFour) {
-                window.open('https://planetterp.com/professor/' + obj.name, "_self");
-            }
-        } else if(obj.webpage === 'ratemyprofessors') {
+        // if(obj.webpage === 'planetterp') {
+        //     fourZeroFour = (document.getElementById("content").getElementsByClassName("py-4").length > 0);
+        //     if(fourZeroFour) {
+        //         window.open('https://planetterp.com/professor/' + obj.name, "_self");
+        //     }
+        if(obj.webpage === 'ratemyprofessors') {
             teachers = document.getElementsByClassName("TeacherCard__StyledTeacherCard-syjs0d-0");
             if(teachers.length == 1 && teachers[0].getElementsByClassName("CardSchool__School-sc-19lmz2k-1")[0].textContent === "University of Maryland") {
                 window.open(teachers[0].href, "_self");
@@ -761,7 +791,7 @@
                 expanded = thisCourse.getElementsByClassName("section-instructor").length > 0;
                 
                 // Establishing course links
-                setPTLink(courseId, "course");
+                setPTLink(courseId, "course", undefined);
 
                 // Establishing initial instructor links
                 if(expanded) {
@@ -782,6 +812,7 @@
                             // within interval of when eventListener was established and when it is triggered 
                             hasLinks2 = document.getElementById(name).getElementsByClassName("rmpreviews-btn").length > 0;
                             if(!hasLinks2) {
+                                // console.log("in here!");
                                 setTimeout(setProfLinks, 500, name, obj);
                             }
                         }, {once: true});

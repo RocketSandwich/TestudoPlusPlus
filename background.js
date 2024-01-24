@@ -68,13 +68,13 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
             chrome.tabs.sendMessage(tabId, urlParams);
 
         // PT links
-        } else if(ptLink) {
-            if(tab.url.split("_")[0] !== tab.url) {
-                const name = tab.url.split("_")[0].split("professor/")[1];
-                chrome.tabs.sendMessage(tabId, {webpage: "planetterp", name: name});
-            } else {
-                console.log("Prevents infinite 404 requests");
-            }
+        // } else if(ptLink) {
+        //     if(tab.url.split("_")[0] !== tab.url) {
+        //         const name = tab.url.split("_")[0].split("professor/")[1];
+        //         chrome.tabs.sendMessage(tabId, {webpage: "planetterp", name: name});
+        //     } else {
+        //         console.log("Prevents infinite 404 requests");
+        //     }
 
         // RMP links
         } else if(rmpLink) {
