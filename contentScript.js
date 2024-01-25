@@ -635,7 +635,7 @@
                         matchingCourseBody.appendChild(hiddenCourseReviewsBodyContent);
 
                         if(reviews.length == 0) {
-                            hiddenCourseReviewsBodyContent.display = "block";
+                            hiddenCourseReviewsBodyContent.style.display = "block";
                         } else {
                             for(let j = reviews.length - 1, k = 0; j >= 0; j--, k++) {
                                 const courseReviewsBodyContent = document.createElement("div");

@@ -16,11 +16,12 @@ Future Implementations:
     - Reviews are not in chronological order
 - Minor bug when sorting by most favorable
 
-1) Use MutationObserver
+**** 1) Use MutationObserver
     - Section professor links
 2) Use courses API
     - Display average course gpa
 
-- Err on CMSC100? (nullptr)
-- Bug: Seemingly infinite load if PT returns "past instructors" but they have no reviews
+- Err on CMSC100? (nullptr) also cmsc115
+- ***** Bug: Seemingly infinite load if PT returns "past instructors" but they have no reviews CMSC498A
+    - When there are professors in dropdown box but no reviews...
 - Bug: Professor(s) reviews link errs upon "Show All Sections" clicked
