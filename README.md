@@ -18,12 +18,9 @@ Future Implementations:
 
 1) Use MutationObserver
     - Section professor links
-2) Use professor API
-    - Retrieve correct 'slug'
-    - Display average rating
-3) Use courses API
+2) Use courses API
     - Display average course gpa
 
 - Err on CMSC100? (nullptr)
-- Stripping prof links bug
-- Bug: Last section for 2+ sections doesnt animate
+- Bug: Seemingly infinite load if PT returns "past instructors" but they have no reviews
+- Bug: Professor(s) reviews link errs upon "Show All Sections" clicked

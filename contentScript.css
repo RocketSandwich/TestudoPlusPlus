@@ -24,6 +24,21 @@
     /* transition: width 0.7s ease-in-out; */
 }
 
+.professor-rating {
+    overflow: hidden;
+    display: inline-flex;
+    padding-left: 0px;
+    /* margin-right: 0px; */
+    transition: padding-left 1s;
+}
+
+.professor-rating-inner {
+    margin-left: -40px;
+    transition: margin-left 1s;
+    /* color: #A81919; */
+    font-weight: bold;
+}
+
 @keyframes slidein {
     from {
         margin-left: 100%;

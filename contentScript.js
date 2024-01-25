@@ -75,7 +75,7 @@
             // professor.insertBefore(PTLink, sectionInstructor);
             linkContainer.appendChild(PTLink);
             
-            sectionInstructor.textContent += " (" + profSet[sectionInstructor.textContent + " rating"] + ")";
+            // sectionInstructor.textContent += " (" + profSet[sectionInstructor.textContent + " rating"] + ")";
         }
     };
 
@@ -105,6 +105,31 @@
     const setBreak = (elem) => {
         const RMPLink = document.createElement("br");
         elem.parentNode.insertBefore(RMPLink, elem);
+    };
+
+    const getColor = (value) => {
+        const ratio = (value - 1.0) / (5.0 - 1.0);
+        console.log(value);
+        console.log(ratio);
+        var hue=(ratio*120).toString(10);
+        return ["hsl(",hue,",60%,50%)"].join("");
+    }
+
+    /* Injects average professor rating */
+    const setProfessorRating = (sectionInstructor) => {
+        
+        const numericalValue = parseFloat(profSet[sectionInstructor.textContent + " rating"]);
+        const interpolatedColor = getColor(numericalValue)
+        
+        const profRating = document.createElement("div");
+        profRating.className = "professor-rating";
+        
+        const profRatingInner = document.createElement("div");
+        profRatingInner.className = "professor-rating-inner";
+        profRatingInner.textContent = " (" + profSet[sectionInstructor.textContent + " rating"] + ")";
+        profRatingInner.style.color = interpolatedColor;
+        profRating.appendChild(profRatingInner);
+        sectionInstructor.appendChild(profRating);
     };
 
     /* Insert professor links */
@@ -146,6 +171,7 @@
                 // sectionContainer.style.marginLeft = "-30px";
                 // sectionContainer.style.paddingRight = "40px";
                 // innerLinkContainer.style.left = "0px";
+                setProfessorRating(sectionProfs[j]);
             }
 
             // const courseId = sectionContainer.parentNode.getElementsByClassName("section-id-container")[0];
@@ -159,12 +185,18 @@
 
         // Transition
         const linksTransition = currCourse.getElementsByClassName("inner-link-container");
+        const ratingContainerTransition = currCourse.getElementsByClassName("professor-rating");
+        const ratingTransition = currCourse.getElementsByClassName("professor-rating-inner");
         // rmpImgs = currCourse.getElementsByClassName("rmp-img");
         // console.log(ptImgs);
         // console.log(rmpImgs);
         for(let i = 0; i < linksTransition.length; i++) {
-            console.log(linksTransition[i]);
-            linksTransition[i].style.marginLeft = "0px";
+            // console.log(linksTransition[i]);
+            setTimeout(() => {
+                ratingContainerTransition[i].style.paddingLeft = "5px";
+                linksTransition[i].style.marginLeft = "0px";
+                ratingTransition[i].style.marginLeft = "0px";
+            }, 500);
             // rmpImgs[i].style.marginLeft = "0px";
         }
     };
