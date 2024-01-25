@@ -27,20 +27,26 @@
     };
 
     /* Injects PT link */
-    const setPTLink = async (subdir, type, profSet) => {
-        specificTitle = subdir.textContent;
+    const setPTLink = async (sectionInstructor, type, profSet, linkContainer) => {
+        
+        specificTitle = sectionInstructor.textContent;
         // console.log("insideFunction");
         // console.log(specificTitle);
-        // console.log(profSet);
         if(type == "professor") {
             // console.log("has title? -", specificTitle in profSet);
             if(!(specificTitle in profSet)) {
                 const data = await fetchProf(encodeURI(specificTitle));
-                profSet[data.name] = data.slug;
+                profSet[specificTitle] = data.slug;
+                if(data.average_rating == null) {
+                    profSet[specificTitle + " rating"] = "?";
+                } else {
+                    profSet[specificTitle + " rating"] = data.average_rating.toFixed(2);
+                }
                 specificTitle = data.slug;
             } else {
                 specificTitle = profSet[specificTitle];
             }
+            // console.log(profSet);
         }
         const PTLink = document.createElement("a");
         PTLink.href = "https://planetterp.com/" + type + "/" + specificTitle;
@@ -53,17 +59,29 @@
         imgElem.src = chrome.runtime.getURL("assets/PT_logo.png");
         imgElem.className = "pt-img";
         imgElem.alt = "PlanetTerp";
-        (type == "course") ? (imgElem.style.width = "40%") : (imgElem.style.width = "7%", imgElem.style.paddingRight = "5px");
+        if(type == "course") {
+            imgElem.style.width = "40%";
+        } else {
+            imgElem.className = "pt-img professor";
+        }
 
         PTLink.addEventListener('mouseover', () => {imgElem.style.filter = 'grayscale(50%)'});
         PTLink.addEventListener('mouseout', () => {imgElem.style.filter = 'grayscale(0%)'});
         PTLink.appendChild(imgElem);
-        (type == "course") ? (subdir.appendChild(PTLink)) : (subdir.parentNode.insertBefore(PTLink, subdir));
+        if(type == "course") {
+            sectionInstructor.appendChild(PTLink);
+        } else {
+            // const professor = sectionInstructor.parentNode;
+            // professor.insertBefore(PTLink, sectionInstructor);
+            linkContainer.appendChild(PTLink);
+            
+            sectionInstructor.textContent += " (" + profSet[sectionInstructor.textContent + " rating"] + ")";
+        }
     };
 
     /* Injects RMP link */
-    const setRMPLink = (subdir) => {
-        const name = subdir.textContent;
+    const setRMPLink = (sectionInstructor, linkContainer) => {
+        const name = sectionInstructor.textContent;
         const RMPLink = document.createElement("a");
         RMPLink.href = "https://www.ratemyprofessors.com/search/professors/1270?q=" + encodeURIComponent(name);
     
@@ -79,7 +97,8 @@
         RMPLink.addEventListener('mouseover', () => {imgElem.style.filter = 'grayscale(65%)'});
         RMPLink.addEventListener('mouseout', () => {imgElem.style.filter = 'grayscale(0%)'});
         RMPLink.appendChild(imgElem);
-        subdir.parentNode.insertBefore(RMPLink, subdir);
+        // sectionInstructor.parentNode.insertBefore(RMPLink, sectionInstructor);
+        linkContainer.appendChild(RMPLink);
     };
 
     /* Injects break tag */
@@ -90,24 +109,63 @@
 
     /* Insert professor links */
     const setProfLinks = async (thisCourse) => {
-        sections = document.getElementById(thisCourse).getElementsByClassName("section-instructors");
+        const currCourse = document.getElementById(thisCourse);
+        sections = currCourse.getElementsByClassName("section-instructors");
 
         // Per section
         profSet = new Object();
         for(let i = 0; i < sections.length; i++) {
             sectionProfs = sections[i].getElementsByClassName("section-instructor");
+            sectionContainer = sections[i].parentNode;
+            
+            const courseId = sectionContainer.parentNode.getElementsByClassName("section-id-container")[0];
+            const computedStyle = window.getComputedStyle(courseId);
+            courseId.style.width = parseInt(computedStyle.width, 10) - 49 + "px";
+
+            const instructorsContainer = sectionContainer.parentNode.getElementsByClassName("section-instructors-container")[0];
+            const instructorsComputedStyle = window.getComputedStyle(instructorsContainer);
+            instructorsContainer.style.width = parseInt(instructorsComputedStyle.width, 10) + 49 + "px";
 
             // Per section professor (co-teaching)
             for(let j = 0; j < sectionProfs.length; j++) {
                 if(j > 0) {
                     setBreak(sectionProfs[j]);
                 }
+                
+                const linkContainer = document.createElement("div");
+                linkContainer.className = "link-container";
+                sections[i].insertBefore(linkContainer, sectionProfs[j]);
+                
+                const innerLinkContainer = document.createElement("div");
+                innerLinkContainer.className = "inner-link-container";
+                linkContainer.appendChild(innerLinkContainer);
 
-                // console.log("trying to set links...");
-                await setPTLink(sectionProfs[j], "professor", profSet);
-                setRMPLink(sectionProfs[j]);
+                await setPTLink(sectionProfs[j], "professor", profSet, innerLinkContainer);
+                setRMPLink(sectionProfs[j], innerLinkContainer);
+
+                // sectionContainer.style.marginLeft = "-30px";
+                // sectionContainer.style.paddingRight = "40px";
+                // innerLinkContainer.style.left = "0px";
             }
-            // console.log(profSet);
+
+            // const courseId = sectionContainer.parentNode.getElementsByClassName("section-id-container")[0];
+            // const computedStyle = window.getComputedStyle(courseId);
+            // courseId.style.width = parseInt(computedStyle.width, 10) - 49 + "px";
+
+            // const instructorsContainer = sectionContainer.parentNode.getElementsByClassName("section-instructors-container")[0];
+            // const instructorsComputedStyle = window.getComputedStyle(instructorsContainer);
+            // instructorsContainer.style.width = parseInt(instructorsComputedStyle.width, 10) + 49 + "px";
+        }
+
+        // Transition
+        const linksTransition = currCourse.getElementsByClassName("inner-link-container");
+        // rmpImgs = currCourse.getElementsByClassName("rmp-img");
+        // console.log(ptImgs);
+        // console.log(rmpImgs);
+        for(let i = 0; i < linksTransition.length; i++) {
+            console.log(linksTransition[i]);
+            linksTransition[i].style.marginLeft = "0px";
+            // rmpImgs[i].style.marginLeft = "0px";
         }
     };
 

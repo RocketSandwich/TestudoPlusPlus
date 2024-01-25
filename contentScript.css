@@ -1,6 +1,45 @@
+.inner-link-container {
+    /* animation-duration: 2s;
+    animation-name: slidein;
+    transition: left 2s;
+    left: -50px; */
+    margin-left: 50px;
+    /* margin-bottom: -5px; */
+    transition: margin-left 1s;
+}
+
 .rmp-img {
-    width: 9%;
+    width: 22px;
+    /* width: 0px; */
     padding-right: 5px;
+    margin-bottom: -1px;
+    /* transition: width 0.7s ease-in-out; */
+}
+
+.pt-img.professor {
+    width: 18px;
+    /* width: 0px; */
+    padding-right: 5px;
+    margin-bottom: -3px;
+    /* transition: width 0.7s ease-in-out; */
+}
+
+@keyframes slidein {
+    from {
+        margin-left: 100%;
+    }
+    to {
+        margin-left: 0%;
+    }
+}
+
+.link-container {
+    width: 50px;
+    display: inline-block;
+    overflow: hidden visible;
+    /* clip-path: inset( -100vw -100vw -100vw 0 ); */
+    white-space: nowrap;
+    margin-bottom: -5px;
 }
 
 .course-reviews-container {

@@ -25,3 +25,5 @@ Future Implementations:
     - Display average course gpa
 
 - Err on CMSC100? (nullptr)
+- Stripping prof links bug
+- Bug: Last section for 2+ sections doesnt animate
