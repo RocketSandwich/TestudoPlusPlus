@@ -16,10 +16,13 @@ Future Implementations:
     - Reviews are not in chronological order
 - Minor bug when sorting by most favorable
 
-**** 1) Use MutationObserver
+1) Use MutationObserver
     - Section professor links
 2) Use courses API
-    - Display average course gpa
+    - Display average course gpa?
+3) Fix ...
 
-- Err on CMSC100? (nullptr) also cmsc115
+What is ajax?
+
 - Bug: Professor(s) reviews link errs upon "Show All Sections" clicked
+- Bug: API doesn't recognize some professor name requests

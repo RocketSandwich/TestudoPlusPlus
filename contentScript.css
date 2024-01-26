@@ -12,7 +12,7 @@
     width: 22px;
     /* width: 0px; */
     padding-right: 5px;
-    margin-bottom: -1px;
+    margin-bottom: -2px;
     /* transition: width 0.7s ease-in-out; */
 }
 
@@ -20,7 +20,7 @@
     width: 18px;
     /* width: 0px; */
     padding-right: 5px;
-    margin-bottom: -3px;
+    margin-bottom: -4px;
     /* transition: width 0.7s ease-in-out; */
 }
 
@@ -37,6 +37,10 @@
     transition: margin-left 1s;
     /* color: #A81919; */
     font-weight: bold;
+    color: white;
+    border-radius: 4px;
+    line-height: normal;
+    padding-inline: 4px;
 }
 
 @keyframes slidein {

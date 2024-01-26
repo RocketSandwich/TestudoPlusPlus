@@ -38,7 +38,7 @@
                 const data = await fetchProf(encodeURI(specificTitle));
                 profSet[specificTitle] = data.slug;
                 if(data.average_rating == null) {
-                    profSet[specificTitle + " rating"] = "?";
+                    profSet[specificTitle + " rating"] = "n/a";
                 } else {
                     profSet[specificTitle + " rating"] = data.average_rating.toFixed(2);
                 }
@@ -69,7 +69,7 @@
         PTLink.addEventListener('mouseout', () => {imgElem.style.filter = 'grayscale(0%)'});
         PTLink.appendChild(imgElem);
         if(type == "course") {
-            sectionInstructor.appendChild(PTLink);
+            sectionInstructor.parentNode.appendChild(PTLink);
         } else {
             // const professor = sectionInstructor.parentNode;
             // professor.insertBefore(PTLink, sectionInstructor);
@@ -109,16 +109,16 @@
 
     const getColor = (value) => {
         const ratio = (value - 1.0) / (5.0 - 1.0);
-        console.log(value);
-        console.log(ratio);
+        // console.log(value);
+        // console.log(ratio);
         var hue=(ratio*120).toString(10);
         return ["hsl(",hue,",60%,50%)"].join("");
     }
 
     /* Injects average professor rating */
     const setProfessorRating = (sectionInstructor) => {
-        
-        const numericalValue = parseFloat(profSet[sectionInstructor.textContent + " rating"]);
+        const rating = profSet[sectionInstructor.textContent + " rating"];
+        const numericalValue = parseFloat(rating);
         const interpolatedColor = getColor(numericalValue)
         
         const profRating = document.createElement("div");
@@ -126,8 +126,14 @@
         
         const profRatingInner = document.createElement("div");
         profRatingInner.className = "professor-rating-inner";
-        profRatingInner.textContent = " (" + profSet[sectionInstructor.textContent + " rating"] + ")";
-        profRatingInner.style.color = interpolatedColor;
+        // profRatingInner.textContent = " (" + profSet[sectionInstructor.textContent + " rating"] + ")";
+        profRatingInner.textContent = rating;
+        // profRatingInner.style.color = interpolatedColor;
+        if(rating == "n/a") {
+            profRatingInner.style.backgroundColor = "lightslategray";
+        } else {
+            profRatingInner.style.backgroundColor = interpolatedColor;
+        }
         profRating.appendChild(profRatingInner);
         sectionInstructor.appendChild(profRating);
     };
