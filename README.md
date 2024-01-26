@@ -22,6 +22,4 @@ Future Implementations:
     - Display average course gpa
 
 - Err on CMSC100? (nullptr) also cmsc115
-- ***** Bug: Seemingly infinite load if PT returns "past instructors" but they have no reviews CMSC498A
-    - When there are professors in dropdown box but no reviews...
 - Bug: Professor(s) reviews link errs upon "Show All Sections" clicked

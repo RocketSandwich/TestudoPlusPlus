@@ -385,33 +385,36 @@
         //    swap 2-star & 4-star chunks
         else if(btn.textContent === "Most Favorable") {
             i = 1;
-            while(reviews[1].getAttribute("data-stars") == 1 && i < reviews.length) {
+            while(i < reviews.length && reviews[1].getAttribute("data-stars") == 1) {
                 reviewsBody.appendChild(reviews[1]);
                 i++;
             }
             
-            while(reviews[1].getAttribute("data-stars") == 2) {
+            j = 1;
+            while(j < reviews.length && reviews[1].getAttribute("data-stars") == 2) {
                 reviewsBody.insertBefore(reviews[1], reviews[reviews.length - i + 1]);
+                j++;
             }
             
             k = 1;
-            while(reviews[k].getAttribute("data-stars") == 3) {
+            while(k < reviews.length && reviews[k].getAttribute("data-stars") == 3) {
                 k++;
             }
 
             l = 1;
-            while(reviews[k].getAttribute("data-stars") == 4) {
+            while(l < reviews.length && k < reviews.length && reviews[k].getAttribute("data-stars") == 4) {
                 reviewsBody.insertBefore(reviews[k], reviews[l]);
                 k++;
                 l++;
             }
 
             m = 1;
-            while(reviews[k].getAttribute("data-stars") == 5) {
+            while(k < reviews.length && m < reviews.length && reviews[k].getAttribute("data-stars") == 5) {
                 reviewsBody.insertBefore(reviews[k], reviews[m]);
                 k++;
                 m++;
             }
+            
 
             for(let i = 0, j = 0; i < reviews.length; i++) {
                 if(reviews[i].style.display === "block") {
