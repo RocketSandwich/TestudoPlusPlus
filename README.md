@@ -25,4 +25,4 @@ Future Implementations:
 What is ajax?
 
 - Bug: Professor(s) reviews link errs upon "Show All Sections" clicked
-- Bug: API doesn't recognize some professor name requests
+- Bug: API doesn't recognize some professor name requests COMM324

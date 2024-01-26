@@ -36,13 +36,19 @@
             // console.log("has title? -", specificTitle in profSet);
             if(!(specificTitle in profSet)) {
                 const data = await fetchProf(encodeURI(specificTitle));
-                profSet[specificTitle] = data.slug;
-                if(data.average_rating == null) {
-                    profSet[specificTitle + " rating"] = "n/a";
+                if(data) {
+                    profSet[specificTitle] = data.slug;
+                    if(data.average_rating == null) {
+                        profSet[specificTitle + " rating"] = "n/a";
+                    } else {
+                        profSet[specificTitle + " rating"] = data.average_rating.toFixed(2);
+                    }
+                    specificTitle = data.slug;
                 } else {
-                    profSet[specificTitle + " rating"] = data.average_rating.toFixed(2);
+                    // profSet[specificTitle] = specificTitle;
+                    profSet[specificTitle] = swapWords(specificTitle);
+                    profSet[specificTitle + " rating"] = "n/a";
                 }
-                specificTitle = data.slug;
             } else {
                 specificTitle = profSet[specificTitle];
             }
