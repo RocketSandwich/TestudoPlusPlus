@@ -10,6 +10,7 @@
 
     const fetchProf = async (name) => {
         try {
+            console.log("name -", name);
             const response = await fetch("https://planetterp.com/api/v1/professor?name=" + name);
     
             if (!response.ok) {
@@ -28,6 +29,7 @@
 
     /* Injects PT link */
     const setPTLink = async (sectionInstructor, type, profSet, linkContainer) => {
+        // console.log("In setPTLink()");
         
         specificTitle = sectionInstructor.textContent;
         // console.log("insideFunction");
@@ -35,6 +37,7 @@
         if(type == "professor") {
             // console.log("has title? -", specificTitle in profSet);
             if(!(specificTitle in profSet)) {
+                // console.log("Before fetching data...");
                 const data = await fetchProf(encodeURI(specificTitle));
                 if(data) {
                     profSet[specificTitle] = data.slug;
@@ -223,7 +226,9 @@
                 courseId = thisCourse.getElementsByClassName("course-id")[0];
                 hasLinks = thisCourse.getElementsByClassName("rmpreviews-btn").length > 0;
                 if(!hasLinks) {
-                    setProfLinks(courseId.textContent);
+                    console.log("Going to fetch data for", courseId.textContent);
+                    // setProfLinks(courseId.textContent);
+                    setTimeout(setProfLinks, 1000, courseId.textContent);
                 }
             }
         };
@@ -910,17 +915,37 @@
 
                     // IIFE used to retain "memory" link between correct button & course
                     (function(name) {
-                        hasSections.addEventListener("click", () => {
-                            console.log("Clicked section button!");
+                        // hasSections.addEventListener("click", () => {
+                        //     console.log("Clicked section button!");
                             
-                            // Redundant !hasLinks check is necessary b/c link status may have changed
-                            // within interval of when eventListener was established and when it is triggered 
-                            hasLinks2 = document.getElementById(name).getElementsByClassName("rmpreviews-btn").length > 0;
-                            if(!hasLinks2) {
-                                // console.log("in here!");
-                                setTimeout(setProfLinks, 500, name, obj);
+                        //     // Redundant !hasLinks check is necessary b/c link status may have changed
+                        //     // within interval of when eventListener was established and when it is triggered 
+                        //     hasLinks2 = document.getElementById(name).getElementsByClassName("rmpreviews-btn").length > 0;
+                        //     if(!hasLinks2) {
+                        //         setTimeout(setProfLinks, 500, name);
+                        //     }
+                        // }, {once: true});
+                        const callback = (mutationList, observer) => {
+                            for (const mutation of mutationList) {
+                                if (mutation.type === "childList") {
+                                    // console.log("A child node has been added or removed.");
+                                    // console.log(document.getElementById(name));
+                                    // for(let node = 0; node < mutation.addedNodes.length; node++) {
+                                    //     console.log("Nodes Added:", mutation.addedNodes[node]);
+                                    // }
+                                    setProfLinks(name);
+                                }
+                                // } else if (mutation.type === "subtree") {
+                                //     console.log("The subtree was modified.");
+                                // }
                             }
-                        }, {once: true});
+
+                            observer.disconnect();
+                        };
+
+                        const observer = new MutationObserver(callback);
+                        observer.observe(document.getElementById(name).getElementsByClassName("sections-fieldset")[0], {childList: true});
+
                     })(courseId.textContent);
                 }
 
