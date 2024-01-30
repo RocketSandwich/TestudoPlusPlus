@@ -16,13 +16,11 @@ Future Implementations:
     - Reviews are not in chronological order
 - Minor bug when sorting by most favorable
 
-1) Use MutationObserver
-    - Section professor links
-2) Use courses API
+1) Use courses API
     - Display average course gpa?
-3) Fix ...
+    - Concern: I don't want too many API calls, so I should consult PlanetTerp (let's say 50 fetches per webpage)
+2) Fix ...
 
 What is ajax?
 
 - Bug: Professor(s) reviews link errs upon "Show All Sections" clicked
-- Bug: API doesn't recognize some professor name requests COMM324
