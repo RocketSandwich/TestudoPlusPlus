@@ -144,7 +144,8 @@
             profRatingInner.style.backgroundColor = interpolatedColor;
         }
         profRating.appendChild(profRatingInner);
-        sectionInstructor.appendChild(profRating);
+        // sectionInstructor.parentNode.appendChild(profRating);
+        sectionInstructor.parentNode.insertBefore(profRating, sectionInstructor.nextSibling);
     };
 
     /* Insert professor links */
@@ -867,7 +868,7 @@
     };
 
     /* Finds right place to inject content on page */
-    chrome.runtime.onMessage.addListener((obj, sender, response) => {
+    chrome.runtime.onMessage.addListener(async (obj, sender, response) => {
         /*
          * Due to the inconsistent nature of the planetterp professor queries, 2 URL's must be tested
          *   - The general rule is usually 'lastName_firstName'
@@ -905,7 +906,7 @@
 
                 // Establishing initial instructor links
                 if(expanded) {
-                    setProfLinks(courseId.textContent);
+                    await setProfLinks(courseId.textContent);
                 }
 
                 // Establishing event listeners for section toggle
@@ -925,15 +926,19 @@
                         //         setTimeout(setProfLinks, 500, name);
                         //     }
                         // }, {once: true});
-                        const callback = (mutationList, observer) => {
+                        const callback = async (mutationList, observer) => {
                             for (const mutation of mutationList) {
                                 if (mutation.type === "childList") {
                                     // console.log("A child node has been added or removed.");
                                     // console.log(document.getElementById(name));
-                                    // for(let node = 0; node < mutation.addedNodes.length; node++) {
-                                    //     console.log("Nodes Added:", mutation.addedNodes[node]);
-                                    // }
-                                    setProfLinks(name);
+                                    for(let node = 0; node < mutation.addedNodes.length; node++) {
+                                        console.log("(Before) Nodes Added:", mutation.addedNodes[node]);
+                                    }
+                                    // console.log(mutation.addedNodes)
+                                    await setProfLinks(name);
+                                    for(let node = 0; node < mutation.addedNodes.length; node++) {
+                                        console.log("(After) Nodes Added:", mutation.addedNodes[node]);
+                                    }
                                 }
                                 // } else if (mutation.type === "subtree") {
                                 //     console.log("The subtree was modified.");
