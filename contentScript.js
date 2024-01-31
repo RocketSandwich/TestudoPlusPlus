@@ -1,3 +1,5 @@
+// 'onMessage.addListener' is located at the eof; Start there
+
 (() => {
     profSet = {};
 
@@ -13,6 +15,25 @@
     const fetchProf = async (name) => {
         try {
             const response = await fetch("https://planetterp.com/api/v1/professor?name=" + name);
+    
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+    
+            const data = await response.json();
+            console.log(data); 
+            return data;
+        } catch (error) {
+            console.log("Error during fetch:", error);
+            return undefined;
+            // throw error; 
+        }
+    };
+
+    /* Fetching course data from PT API */
+    const fetchCourse = async (name) => {
+        try {
+            const response = await fetch("https://planetterp.com/api/v1/course?name=" + name);
     
             if (!response.ok) {
                 throw new Error("Network response was not ok");
@@ -130,6 +151,16 @@
         PTLink.appendChild(imgElem);
         if(type == "course") {
             sectionInstructor.parentNode.appendChild(PTLink);
+            // const data = await fetchCourse(sectionInstructor.textContent);
+            // const avgGPA = document.createElement("div");
+            // avgGPA.className = "average-course-gpa";
+            // if(data) {
+            //     avgGPA.textContent = "Average GPA of " + data.average_gpa.toFixed(2);// + " between " + num + " students";
+            // } else {
+            //     avgGPA.textContent = "Average GPA of ?";
+            // }
+            // const courseDetails = sectionInstructor.parentNode.parentNode.getElementsByClassName("course-basic-info-container")[0];
+            // courseDetails.appendChild(avgGPA)
         } else {
             linkContainer.appendChild(PTLink);
         }
@@ -794,6 +825,20 @@
         });
     };
 
+    /* Inserting average GPA for designated course */
+    const setAvgGPA = async (courseId) => {
+        const data = await fetchCourse(courseId.textContent);
+        const avgGPA = document.createElement("div");
+        avgGPA.className = "average-course-gpa";
+        if(data && data.average_gpa) {
+            avgGPA.textContent = "Avg GPA: " + data.average_gpa.toFixed(2);// + " between " + num + " students";
+        } else {
+            avgGPA.textContent = "Avg GPA: (not listed)";
+        }
+        const courseDetails = courseId.parentNode.parentNode.getElementsByClassName("course-basic-info-container")[0];
+        courseDetails.appendChild(avgGPA);
+    };
+
     chrome.runtime.onMessage.addListener(async (obj, sender, response) => {
 
         // RMP took down their old API and replaced to GraphQL
@@ -820,11 +865,12 @@
             courses = document.getElementsByClassName("course");
             for(let i = 0; i < courses.length; i++) {
                 thisCourse = courses[i];
-                infoContainer = thisCourse.getElementsByClassName("course-info-container")[0];
                 courseId = thisCourse.getElementsByClassName("course-id")[0];
+                infoContainer = thisCourse.getElementsByClassName("course-info-container")[0];
                 sectionsData = thisCourse.getElementsByClassName("sections-container");
                 hasExpandedSections = sectionsData.length > 0;
                 
+                setAvgGPA(courseId);
                 setPTLink(courseId, "course", undefined);
                 setNativeReviews(courseId, infoContainer, obj);
                 
