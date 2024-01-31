@@ -1,4 +1,5 @@
 (() => {
+    profSet = {};
 
     /* Rearranging instructor name for query */
     const swapWords = (professor) => {
@@ -10,7 +11,7 @@
 
     const fetchProf = async (name) => {
         try {
-            console.log("name -", name);
+            // console.log("name -", name);
             const response = await fetch("https://planetterp.com/api/v1/professor?name=" + name);
     
             if (!response.ok) {
@@ -27,38 +28,89 @@
         }
     };
 
-    /* Injects PT link */
-    const setPTLink = async (sectionInstructor, type, profSet, linkContainer) => {
-        // console.log("In setPTLink()");
-        
-        specificTitle = sectionInstructor.textContent;
-        // console.log("insideFunction");
-        // console.log(specificTitle);
-        if(type == "professor") {
-            // console.log("has title? -", specificTitle in profSet);
-            if(!(specificTitle in profSet)) {
-                // console.log("Before fetching data...");
-                const data = await fetchProf(encodeURI(specificTitle));
+    /* Stores relevant professor info in global data sturcture */
+    const storePlaceholderData = (addedNode) => {
+        sections = addedNode.getElementsByClassName("section-instructors");
+
+        // Per section
+        for(let i = 0; i < sections.length; i++) {
+            sectionProfs = sections[i].getElementsByClassName("section-instructor");
+
+            // Per section professor (co-teaching)
+            for(let j = 0; j < sectionProfs.length; j++) {
+                profSet[sectionProfs[j].textContent] = {profSlug: undefined, profRating: undefined};
+            }
+        }
+    };
+
+    const fillData = async (course) => {
+        for (let [prof, values] of Object.entries(profSet)) {
+
+            // console.log(course, "Professor", prof, "; values.profSlug -", values.profSlug, "; values.profRating - ", values.profRating)
+            console.log(course, "Professor", prof, "; profSet[prof].profSlug -", profSet[prof].profSlug, "; profSet[prof].profRating - ", profSet[prof].profRating)
+            // if(values.profSlug === undefined && values.profRating === undefined) {
+            if(profSet[prof].profSlug === undefined && profSet[prof].profRating === undefined) {
+                console.log("Empty entry! Fetching data", prof);
+                const data = await fetchProf(encodeURI(prof));
                 if(data) {
-                    profSet[specificTitle] = data.slug;
+                    rating = "";
                     if(data.average_rating == null) {
-                        profSet[specificTitle + " rating"] = "n/a";
+                        rating = "n/a";
                     } else {
-                        profSet[specificTitle + " rating"] = data.average_rating.toFixed(2);
+                        rating = data.average_rating.toFixed(2);
                     }
-                    specificTitle = data.slug;
+                    profSet[prof] = {profSlug: data.slug, profRating: rating};
+                    // specificTitle = data.slug;
                 } else {
-                    // profSet[specificTitle] = specificTitle;
-                    profSet[specificTitle] = swapWords(specificTitle);
-                    profSet[specificTitle + " rating"] = "n/a";
+                    profSet[prof] = {profSlug: swapWords(prof), profRating: "n/a"};
                 }
             } else {
-                specificTitle = profSet[specificTitle];
+                console.log("Data entry filled!", prof);
             }
-            // console.log(profSet);
         }
+
+        // sections = addedNode.getElementsByClassName("section-instructors");
+
+        // // Per section
+        // for(let i = 0; i < sections.length; i++) {
+        //     sectionProfs = sections[i].getElementsByClassName("section-instructor");
+
+        //     // Per section professor (co-teaching)
+        //     for(let j = 0; j < sectionProfs.length; j++) {
+        //         const specificTitle = sectionProfs[j].textContent;
+        //         if(profSet[specificTitle].profSlug === undefined && profSet[specificTitle].profRating === undefined) {
+        //             const data = await fetchProf(encodeURI(specificTitle));
+        //             if(data) {
+        //                 rating = "";
+        //                 if(data.average_rating == null) {
+        //                     rating = "n/a";
+        //                 } else {
+        //                     rating = data.average_rating.toFixed(2);
+        //                 }
+        //                 profSet[specificTitle] = {profSlug: data.slug, profRating: rating};
+        //                 // specificTitle = data.slug;
+        //             } else {
+        //                 profSet[specificTitle] = {profSlug: swapWords(specificTitle), profRating: "n/a"};
+        //             }
+        //         } 
+        //         // else {
+        //         //     specificTitle = profSet[specificTitle].profSlug;
+        //         // }
+        //         console.log("Tried to fill", specificTitle, profSet[specificTitle]);
+        //     }
+        // }
+    };
+
+    /* Injects PT link */
+    const setPTLink = async (sectionInstructor, type, linkContainer) => {
+        // console.log("In setPTLink()");
+        
         const PTLink = document.createElement("a");
-        PTLink.href = "https://planetterp.com/" + type + "/" + specificTitle;
+        if(type == "course") {
+            PTLink.href = "https://planetterp.com/" + type + "/" + sectionInstructor.textContent; // sectionInstructor is really 'courseId'
+        } else {
+            PTLink.href = "https://planetterp.com/" + type + "/" + profSet[sectionInstructor.textContent].profSlug;
+        }
 
         PTLink.target = "_blank";
         PTLink.className = "ptreviews-btn";
@@ -126,7 +178,7 @@
 
     /* Injects average professor rating */
     const setProfessorRating = (sectionInstructor) => {
-        const rating = profSet[sectionInstructor.textContent + " rating"];
+        const rating = profSet[sectionInstructor.textContent].profRating;
         const numericalValue = parseFloat(rating);
         const interpolatedColor = getColor(numericalValue)
         
@@ -148,13 +200,10 @@
         sectionInstructor.parentNode.insertBefore(profRating, sectionInstructor.nextSibling);
     };
 
-    /* Insert professor links */
-    const setProfLinks = async (thisCourse) => {
-        const currCourse = document.getElementById(thisCourse);
-        sections = currCourse.getElementsByClassName("section-instructors");
+    const injectData = (addedNode) => {
+        sections = addedNode.getElementsByClassName("section-instructors");
 
         // Per section
-        profSet = new Object();
         for(let i = 0; i < sections.length; i++) {
             sectionProfs = sections[i].getElementsByClassName("section-instructor");
             sectionContainer = sections[i].parentNode;
@@ -181,40 +230,51 @@
                 innerLinkContainer.className = "inner-link-container";
                 linkContainer.appendChild(innerLinkContainer);
 
-                await setPTLink(sectionProfs[j], "professor", profSet, innerLinkContainer);
+                setPTLink(sectionProfs[j], "professor", innerLinkContainer);
                 setRMPLink(sectionProfs[j], innerLinkContainer);
-
-                // sectionContainer.style.marginLeft = "-30px";
-                // sectionContainer.style.paddingRight = "40px";
-                // innerLinkContainer.style.left = "0px";
                 setProfessorRating(sectionProfs[j]);
             }
-
-            // const courseId = sectionContainer.parentNode.getElementsByClassName("section-id-container")[0];
-            // const computedStyle = window.getComputedStyle(courseId);
-            // courseId.style.width = parseInt(computedStyle.width, 10) - 49 + "px";
-
-            // const instructorsContainer = sectionContainer.parentNode.getElementsByClassName("section-instructors-container")[0];
-            // const instructorsComputedStyle = window.getComputedStyle(instructorsContainer);
-            // instructorsContainer.style.width = parseInt(instructorsComputedStyle.width, 10) + 49 + "px";
         }
+    };
 
-        // Transition
-        const linksTransition = currCourse.getElementsByClassName("inner-link-container");
-        const ratingContainerTransition = currCourse.getElementsByClassName("professor-rating");
-        const ratingTransition = currCourse.getElementsByClassName("professor-rating-inner");
-        // rmpImgs = currCourse.getElementsByClassName("rmp-img");
-        // console.log(ptImgs);
-        // console.log(rmpImgs);
+    const slideTransition = (addedNode) => {
+        const linksTransition = addedNode.getElementsByClassName("inner-link-container");
+        const ratingContainerTransition = addedNode.getElementsByClassName("professor-rating");
+        const ratingTransition = addedNode.getElementsByClassName("professor-rating-inner");
+
         for(let i = 0; i < linksTransition.length; i++) {
-            // console.log(linksTransition[i]);
             setTimeout(() => {
                 ratingContainerTransition[i].style.paddingLeft = "5px";
                 linksTransition[i].style.marginLeft = "0px";
                 ratingTransition[i].style.marginLeft = "0px";
             }, 500);
-            // rmpImgs[i].style.marginLeft = "0px";
         }
+    };
+
+    /* Insert professor links */
+    const setProfLinks = async (thisCourse, addedNode = undefined) => {
+        // console.log();
+        storePlaceholderData(addedNode);
+        await fillData(thisCourse);
+        injectData(addedNode);
+        slideTransition(addedNode);
+        console.log(profSet);
+
+                // console.log(thisCourse, "addedNode (before fetch)", addedNode);
+                // for(let prof = 0; prof < sectionProfs.length; prof++) {
+                //     console.log(thisCourse, "professor list (before fetch)", sectionProfs[prof]);
+                // }
+                // await setPTLink(sectionProfs[j], "professor", innerLinkContainer);
+                // console.log(thisCourse, "addedNode (after fetch)", addedNode);
+                // for(let prof = 0; prof < sectionProfs.length; prof++) {
+                //     console.log(thisCourse, "professor list (after fetch)", sectionProfs[prof]);
+                // }
+                // setRMPLink(sectionProfs[j], innerLinkContainer);
+
+                // sectionContainer.style.marginLeft = "-30px";
+                // sectionContainer.style.paddingRight = "40px";
+                // innerLinkContainer.style.left = "0px";
+                // setProfessorRating(sectionProfs[j]);
     };
 
     /* User clicks "show all sections" button */
@@ -227,7 +287,7 @@
                 courseId = thisCourse.getElementsByClassName("course-id")[0];
                 hasLinks = thisCourse.getElementsByClassName("rmpreviews-btn").length > 0;
                 if(!hasLinks) {
-                    console.log("Going to fetch data for", courseId.textContent);
+                    // console.log("Going to fetch data for", courseId.textContent);
                     // setProfLinks(courseId.textContent);
                     setTimeout(setProfLinks, 1000, courseId.textContent);
                 }
@@ -929,20 +989,15 @@
                         const callback = async (mutationList, observer) => {
                             for (const mutation of mutationList) {
                                 if (mutation.type === "childList") {
-                                    // console.log("A child node has been added or removed.");
-                                    // console.log(document.getElementById(name));
-                                    for(let node = 0; node < mutation.addedNodes.length; node++) {
-                                        console.log("(Before) Nodes Added:", mutation.addedNodes[node]);
-                                    }
+                                    // for(let node = 0; node < mutation.addedNodes.length; node++) {
+                                    //     console.log(name, "(Before) Nodes Added:", mutation.addedNodes[node]);
+                                    // }
                                     // console.log(mutation.addedNodes)
-                                    await setProfLinks(name);
-                                    for(let node = 0; node < mutation.addedNodes.length; node++) {
-                                        console.log("(After) Nodes Added:", mutation.addedNodes[node]);
-                                    }
+                                    await setProfLinks(name, mutation.addedNodes[0]);
+                                    // for(let node = 0; node < mutation.addedNodes.length; node++) {
+                                    //     console.log(name, "(After) Nodes Added:", mutation.addedNodes[node]);
+                                    // }
                                 }
-                                // } else if (mutation.type === "subtree") {
-                                //     console.log("The subtree was modified.");
-                                // }
                             }
 
                             observer.disconnect();
