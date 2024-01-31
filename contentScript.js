@@ -1,7 +1,5 @@
 (() => {
     profSet = {};
-    coursesClicked = [];
-    // courseCount = document.getElementsByClassName("course-id").length;
 
     /* Rearranging instructor name for query */
     const swapWords = (professor) => {
@@ -11,9 +9,9 @@
         return resultString;
     };
 
+    /* Fetching professor data from PT API */
     const fetchProf = async (name) => {
         try {
-            // console.log("name -", name);
             const response = await fetch("https://planetterp.com/api/v1/professor?name=" + name);
     
             if (!response.ok) {
@@ -30,22 +28,8 @@
         }
     };
 
-    /* Stores relevant professor info in global data sturcture */
-    const storePlaceholderData = (addedNode) => {
-        sections = addedNode.getElementsByClassName("section-instructors");
-
-        // Per section
-        for(let i = 0; i < sections.length; i++) {
-            sectionProfs = sections[i].getElementsByClassName("section-instructor");
-
-            // Per section professor (co-teaching)
-            for(let j = 0; j < sectionProfs.length; j++) {
-                profSet[sectionProfs[j].textContent] = {profSlug: undefined, profRating: undefined};
-            }
-        }
-    };
-
-    const injectData2 = (professor, index) => {
+    /* Inject corresponding links & rating next to professor */
+    const injectData = (professor, index) => {
         if(index > 0) {
             setBreak(professor);
         }
@@ -63,6 +47,7 @@
         setProfessorRating(professor);
     };
 
+    /* Simple realignment to structure injected data */
     const alignmentShift = (section) => {
         const courseId = section.getElementsByClassName("section-id-container")[0];
         const computedStyle = window.getComputedStyle(courseId);
@@ -73,6 +58,7 @@
         instructorsContainer.style.width = parseInt(instructorsComputedStyle.width, 10) + 49 + "px";
     };
 
+    /* Stores important fetched data to prevent redundant API calls */
     const fillGlobalMap = async (profName) => {
         if(!(profName in profSet)) {
             const data = await fetchProf(encodeURI(profName));
@@ -90,6 +76,7 @@
         }
     };
 
+    /* Fetches, reads, processes, & injects data in appropriate place */
     const processData = async (courses) => {
 
         // Course iteration
@@ -107,7 +94,7 @@
                     const profName = professor.textContent;
             
                     await fillGlobalMap(profName);
-                    injectData2(professor, k);
+                    injectData(professor, k);
                 }
             }
             slideTransition(courses[i]);
@@ -116,7 +103,6 @@
 
     /* Injects PT link */
     const setPTLink = async (sectionInstructor, type, linkContainer) => {
-        // console.log("In setPTLink()");
         
         const PTLink = document.createElement("a");
         if(type == "course") {
@@ -145,11 +131,7 @@
         if(type == "course") {
             sectionInstructor.parentNode.appendChild(PTLink);
         } else {
-            // const professor = sectionInstructor.parentNode;
-            // professor.insertBefore(PTLink, sectionInstructor);
             linkContainer.appendChild(PTLink);
-            
-            // sectionInstructor.textContent += " (" + profSet[sectionInstructor.textContent + " rating"] + ")";
         }
     };
 
@@ -171,7 +153,6 @@
         RMPLink.addEventListener('mouseover', () => {imgElem.style.filter = 'grayscale(65%)'});
         RMPLink.addEventListener('mouseout', () => {imgElem.style.filter = 'grayscale(0%)'});
         RMPLink.appendChild(imgElem);
-        // sectionInstructor.parentNode.insertBefore(RMPLink, sectionInstructor);
         linkContainer.appendChild(RMPLink);
     };
 
@@ -181,10 +162,9 @@
         elem.parentNode.insertBefore(RMPLink, elem);
     };
 
+    /* Establishes color gradient based on rating (Red[1.0] -> Yellow[3.0] -> Green[5.0]) */
     const getColor = (value) => {
         const ratio = (value - 1.0) / (5.0 - 1.0);
-        // console.log(value);
-        // console.log(ratio);
         var hue=(ratio*120).toString(10);
         return ["hsl(",hue,",60%,50%)"].join("");
     }
@@ -200,56 +180,17 @@
         
         const profRatingInner = document.createElement("div");
         profRatingInner.className = "professor-rating-inner";
-        // profRatingInner.textContent = " (" + profSet[sectionInstructor.textContent + " rating"] + ")";
         profRatingInner.textContent = rating;
-        // profRatingInner.style.color = interpolatedColor;
         if(rating == "n/a") {
             profRatingInner.style.backgroundColor = "lightslategray";
         } else {
             profRatingInner.style.backgroundColor = interpolatedColor;
         }
         profRating.appendChild(profRatingInner);
-        // sectionInstructor.parentNode.appendChild(profRating);
         sectionInstructor.parentNode.insertBefore(profRating, sectionInstructor.nextSibling);
     };
 
-    const injectData = (addedNode) => {
-        sections = addedNode.getElementsByClassName("section-instructors");
-
-        // Per section
-        for(let i = 0; i < sections.length; i++) {
-            sectionProfs = sections[i].getElementsByClassName("section-instructor");
-            sectionContainer = sections[i].parentNode;
-            
-            const courseId = sectionContainer.parentNode.getElementsByClassName("section-id-container")[0];
-            const computedStyle = window.getComputedStyle(courseId);
-            courseId.style.width = parseInt(computedStyle.width, 10) - 49 + "px";
-
-            const instructorsContainer = sectionContainer.parentNode.getElementsByClassName("section-instructors-container")[0];
-            const instructorsComputedStyle = window.getComputedStyle(instructorsContainer);
-            instructorsContainer.style.width = parseInt(instructorsComputedStyle.width, 10) + 49 + "px";
-
-            // Per section professor (co-teaching)
-            for(let j = 0; j < sectionProfs.length; j++) {
-                if(j > 0) {
-                    setBreak(sectionProfs[j]);
-                }
-                
-                const linkContainer = document.createElement("div");
-                linkContainer.className = "link-container";
-                sections[i].insertBefore(linkContainer, sectionProfs[j]);
-                
-                const innerLinkContainer = document.createElement("div");
-                innerLinkContainer.className = "inner-link-container";
-                linkContainer.appendChild(innerLinkContainer);
-
-                setPTLink(sectionProfs[j], "professor", innerLinkContainer);
-                setRMPLink(sectionProfs[j], innerLinkContainer);
-                setProfessorRating(sectionProfs[j]);
-            }
-        }
-    };
-
+    /* Starts the slide animation for links & rating containers */
     const slideTransition = (addedNode) => {
         const linksTransition = addedNode.getElementsByClassName("inner-link-container");
         const ratingContainerTransition = addedNode.getElementsByClassName("professor-rating");
@@ -262,71 +203,6 @@
                 ratingTransition[i].style.marginLeft = "0px";
             }, 500);
         }
-    };
-
-    /* Insert professor links */
-    const setProfLinks = async (addedNode) => {
-        // if(addedNode === undefined) {
-            // thisCourse = document.getElementById(courseName);
-            // sections = thisCourse.getElementsByClassName("sections-container")[0];
-            
-            // storePlaceholderData(sections);
-            await storeData(addedNode);
-            injectData(sections);
-            slideTransition(sections);
-            // console.log(profSet);
-        // } else {
-        //     storePlaceholderData(addedNode);
-        // }
-
-                // console.log(thisCourse, "addedNode (before fetch)", addedNode);
-                // for(let prof = 0; prof < sectionProfs.length; prof++) {
-                //     console.log(thisCourse, "professor list (before fetch)", sectionProfs[prof]);
-                // }
-                // await setPTLink(sectionProfs[j], "professor", innerLinkContainer);
-                // console.log(thisCourse, "addedNode (after fetch)", addedNode);
-                // for(let prof = 0; prof < sectionProfs.length; prof++) {
-                //     console.log(thisCourse, "professor list (after fetch)", sectionProfs[prof]);
-                // }
-                // setRMPLink(sectionProfs[j], innerLinkContainer);
-
-                // sectionContainer.style.marginLeft = "-30px";
-                // sectionContainer.style.paddingRight = "40px";
-                // innerLinkContainer.style.left = "0px";
-                // setProfessorRating(sectionProfs[j]);
-    };
-
-    /* User clicks "show all sections" button */
-    const allSectionsExpandBtn = () => {
-
-        // fn = (crses) => {
-        //     // Per course
-        //     for(let i = 0; i < crses.length; i++) {
-        //         thisCourse = crses[i];
-        //         courseId = thisCourse.getElementsByClassName("course-id")[0];
-        //         hasLinks = thisCourse.getElementsByClassName("rmpreviews-btn").length > 0;
-        //         if(!hasLinks) {
-        //             // console.log("Going to fetch data for", courseId.textContent);
-        //             // setProfLinks(courseId.textContent);
-        //             setTimeout(setProfLinks, 1000, courseId.textContent);
-        //         }
-        //     }
-        // };
-        
-        sectionsBtn = document.getElementById("show-all-sections-button");
-        sectionsBtn.addEventListener("click", async () => {
-            // professors = document.getElementsByClassName("section-instructor");
-            // sections = document.getElementsByClassName("sections-container");
-            courses = document.getElementsByClassName("course-id");
-            // setTimeout(500);
-            // console.log(sections.length);
-            // await fillData();
-            for(let i = 0; i < courses.length; i++) {
-                coursesClicked.push(courses[i].textContent);
-                // injectData(sections[i]);
-                // slideTransition(sections[i]);
-            }
-        }, {once: true});
     };
 
     /* Fetches data for corresponding course */
@@ -363,12 +239,9 @@
         return w;
     };
 
-    /* Testing fetch native */
+    /* Used to get active course professors w/o having to expand sections container (Experiment w/ ajax calls?) */
     const fetchSections = async (courseName, urlParams) => {
         try {
-            // course = document.getElementById(courseName);
-            // sectionsLink = course.getElementsByClassName("toggle-sections-link")[0];
-            // ^^ Weirdly, sometimes the sections href link doesn't work, so going to manually fetch search query
             const response = await fetch("/soc/search?courseId=" + courseName + "&sectionId=&termId=" + urlParams.termId + "&_openSectionsOnly=on&creditCompare=&credits=&genEdCode=ALL&courseLevelFilter=ALL&instructor=&_facetoface=on&_blended=on&_online=on&courseStartCompare=&courseStartHour=&courseStartMin=&courseStartAM=&courseEndHour=&courseEndMin=&courseEndAM=&teachingCenter=ALL&_classDay1=on&_classDay2=on&_classDay3=on&_classDay4=on&_classDay5=on");
              
             if (!response.ok) {
@@ -381,7 +254,6 @@
             const prof = doc.getElementsByClassName("section-instructor");
             thisCourseProfs = new Set();
             for(let i = 0; i < prof.length; i++) {
-                // console.log(prof[i].textContent);
                 thisCourseProfs.add(prof[i].textContent);
             }
 
@@ -438,7 +310,7 @@
         btn.value = btnValue;
 
         /* Recent -> Critical -> Favorable -> (repeat) */
-        // elements should store 'data-stars' & 'data-datetime'
+        // Elements should store 'data-stars' & 'data-datetime' (sort parameters)
         const reviewsBody = btn.parentNode.parentNode.parentNode.getElementsByClassName("course-reviews-body")[0];
         reviews = reviewsBody.getElementsByClassName("course-reviews-body-content");
         
@@ -462,34 +334,25 @@
                 }
             }
 
-            // const visibleReviews = reviewsBody.querySelectorAll('[style*="display: block;"]');
-            // console.log(visibleReviews.length);
-            // reviews = reviewsBody.querySelectorAll('[data-datetime]');
             for(let i = 0, j = 0; i < reviews.length; i++) {
-                // console.log(i);
-                // console.log(reviews[i]);
-                // console.log(reviews[i].style.display);
-                // console.log(visibleReviews[i]);
                 if(reviews[i].style.display === "block") {
                     if(j % 2 == 0) {
                         reviews[i].style.backgroundColor = "#eee";
                     } else {
                         reviews[i].style.backgroundColor = "transparent";
                     }
-                    // console.log(reviews[i]);
                     j++;
                 }
             }
         }
 
         // Critical -> Favorable
-        // - Possibly O(n) since we have them as sorted chunk data
+        // - Possibly O(4*n) since we have them as sorted chunk data
         // - Move 1-star reviews chunk as end chunk
         // - Move 2-star reviews chunk to end-1 chunk
-        // - 3rd, 4th: (repeat) When 5-star reviews chunk in front, stop.
-
-        // Vs swap 1-star & 5-star chunks,
-        //    swap 2-star & 4-star chunks
+        // - (3-star chunk will stay in same place)
+        // - Move 4-star reviews chunk to front+1 chunk
+        // - Move 5-star reviews chunk as front chunk
         else if(btn.textContent === "Most Favorable") {
             i = 1;
             while(i < reviews.length && reviews[1].getAttribute("data-stars") == 1) {
@@ -521,7 +384,6 @@
                 k++;
                 m++;
             }
-            
 
             for(let i = 0, j = 0; i < reviews.length; i++) {
                 if(reviews[i].style.display === "block") {
@@ -530,7 +392,6 @@
                     } else {
                         reviews[i].style.backgroundColor = "transparent";
                     }
-                    // console.log(reviews[i]);
                     j++;
                 }
             }
@@ -544,6 +405,7 @@
         }
     };
     
+    /* A substring command for single native professor review */
     const getProfName = (review) => {
         const indexOfEmptyStar = review.indexOf("☆");
         const indexOfStar = review.indexOf("★");
@@ -552,6 +414,7 @@
     };
 
     /* Establishes native course reviews */
+    /* Honestly, this function is a monstrousity rn, but I'm too exhausted to refactor it thoroughly :( (Works though!) */
     const setNativeReviews = (courseId, infoContainer, urlParams) => {
 
         // Creating containers
@@ -598,13 +461,6 @@
         const toggleText = document.createElement("span");
         toggleText.textContent = "Show Reviews";
 
-        // Add drop-down-menu here
-        //   - Compares profs listed in curr sections and compares w/ profs listed in API resp
-        //   - 2 Groups: "Current Instructors" & "Previous Instructors"
-        //   - Get rid of duplicates
-        //   - When professor is selected, filter by their reviews
-        //   - + Make the 2 groups selectable to filter by "all current" & "all previous" instructors 
-
         const courseReviewsBody = document.createElement("div");
         courseReviewsBody.className = "course-reviews-body";
 
@@ -627,7 +483,6 @@
             courseReviewsToggleBtn.addEventListener('click', async (event) => {
 
                 const thisCourseProfs = await fetchSections(courseName, urlParams);
-                // console.log(thisCourseProfs);
 
                 // Prevents redundant PT API calls
                 if(!legend.classList.contains("fetched")) {
@@ -655,14 +510,12 @@
                             // Edit reviews box to display only the requested professor(s)
                             const greatGrandpa = event.target.parentNode.parentNode.parentNode;
                             const reviews = greatGrandpa.getElementsByClassName("body-content-header");
-                            // console.log(greatGrandpa);
                             const emptySlide = greatGrandpa.querySelector("#empty-review");
                             emptySlide.style.display = "none";
                             
                             for(let i = 0, j = 0; i < reviews.length; i++) { //★☆
                                 const profName = getProfName(reviews[i].textContent);
 
-                                // Bro just pretend rn that the filter list has correct data
                                 if(event.target.value === "All Instructors") {
                                     if(j % 2 == 0) {
                                         reviews[i].parentNode.style.backgroundColor = "#eee";
@@ -673,7 +526,6 @@
                                     reviews[i].parentNode.style.display = "block";
                                 } else if(event.target.value === "All Current Instructors") {
                                     if(thisCourseProfs.has(profName)) {
-                                        // console.log("Hit All Current Instructors!", profName);
                                         if(j % 2 == 0) {
                                             reviews[i].parentNode.style.backgroundColor = "#eee";
                                         } else {
@@ -686,7 +538,6 @@
                                     }
                                 } else if(event.target.value === "All Past Instructors") {
                                     if(!thisCourseProfs.has(profName)) {
-                                        // console.log("Hit All Past Instructors!", profName);
                                         if(j % 2 == 0) {
                                             reviews[i].parentNode.style.backgroundColor = "#eee";
                                         } else {
@@ -727,7 +578,6 @@
                                 emptySlide.style.display = "block";
                             }
 
-                            // console.log(contentBody);
                             if(contentBody.scrollHeight < 450) {
                                 contentBody.style.maxHeight = contentBody.scrollHeight + "px";
                             } else {
@@ -776,12 +626,9 @@
 
                                 /* Test Content */
                                 // Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                                // Eget mauris pharetra et ultrices neque ornare aenean. Auctor eu augue ut lectus arcu bibendum at varius vel. Duis at consectetur lorem donec massa sapien faucibus.
-                                // Mauris sit amet massa vitae tortor condimentum lacinia quis vel. Lobortis elementum nibh tellus molestie nunc. Fermentum odio eu feugiat pretium nibh.
-                                // Cursus euismod quis viverra nibh cras pulvinar mattis nunc sed. Amet tellus cras adipiscing enim. Pellentesque habitant morbi tristique senectus et netus et malesuada fames.
-                                // Laoreet sit amet cursus sit amet dictum sit amet. Lorem ipsum dolor sit amet consectetur adipiscing. Nibh praesent tristique magna sit amet.
-                                // Lectus mauris ultrices eros in cursus turpis massa. Eu feugiat pretium nibh ipsum. Sit amet consectetur adipiscing elit ut aliquam purus sit amet.
-                                // Tempor orci eu lobortis elementum nibh tellus molestie nunc. Risus in hendrerit gravida rutrum quisque non tellus orci ac. Elit pellentesque habitant morbi tristique senectus et netus.
+                                // Eget mauris pharetra et ultrices neque ornare aenean. Auctor eu augue ut lectus arcu bibendum at varius vel. 
+                                // Duis at consectetur lorem donec massa sapien faucibus. Mauris sit amet massa vitae tortor condimentum lacinia quis vel.
+                                // Lobortis elementum nibh tellus molestie nunc. Fermentum odio eu feugiat pretium nibh.
                                 matchingCourseBody.appendChild(courseReviewsBodyContent);
                             }
 
@@ -874,15 +721,10 @@
                     matchingCourse = document.getElementById(courseName);
                     matchingCourseBody = matchingCourse.getElementsByClassName("course-reviews-body")[0];
 
-                    // reviewsCriteria.style.maxWidth = "0px";
                     for(let i = 0; i < childElements.length; i++) {
-                        // childElements[i].style.display = "inline-block";
                         childElements[i].style.maxWidth = "0px";
                     }
                     
-                    // for(let i = 0; i < childElements.length; i++) {
-                    //     childElements[i].style.display = "none";
-                    // }
                     courseReviewsBody.style.maxHeight = "0px";
                     legend.classList.toggle("active");
                     courseReviewsToggleBtn.replaceChild(arrowIcon2, arrowIcon1);
@@ -892,13 +734,13 @@
                     courseReviewsFieldset.style.paddingBottom = "0px";
                     courseReviewsBody.style.paddingTop = "0px";
                     courseReviewsBody.style.paddingBottom = "0px";
+
                 // Expanding review box
                 } else {
                     courseReviewsFieldset.style.display = "block";
                     courseReviewsFieldset.style.padding = "13px";
                     courseReviewsFieldset.style.border = "1px solid #ddd";
-                    // reviewsCriteria.style.width = "200px";
-                    // reviewsCriteria.children.style.width = "200px";
+
                     for(let i = 0; i < childElements.length; i++) {
                         if(childElements[i].className === "course-reviews-filter-dropdown-menu interaction") {
                             childElements[i].style.maxWidth = getWidth(childElements[i]) + "px";
@@ -906,9 +748,6 @@
                             childElements[i].style.maxWidth = "120px";
                         }
                     }
-                    // for(let i = 0; i < childElements.length; i++) {
-                    //     childElements[i].style.display = "inline-flex";
-                    // }
 
                     matchingCourse = document.getElementById(courseName);
                     matchingCourseBody = matchingCourse.getElementsByClassName("course-reviews-body")[0];
@@ -916,7 +755,6 @@
                     filterBy.style.display = "inline-flex";
                     sortBy.style.display = "inline-flex";
 
-                    // console.log("height -", matchingCourseBody.scrollHeight);
                     if(matchingCourseBody.scrollHeight < 450) {
                         matchingCourseBody.style.maxHeight = matchingCourseBody.scrollHeight + "px";
                     } else {
@@ -956,127 +794,49 @@
         });
     };
 
-    /* Finds right place to inject content on page */
     chrome.runtime.onMessage.addListener(async (obj, sender, response) => {
-        /*
-         * Due to the inconsistent nature of the planetterp professor queries, 2 URL's must be tested
-         *   - The general rule is usually 'lastName_firstName'
-         *   - If there are 2+ profs w/ same first name, then only query by 'lastName' (but this is still not 100% consistent)
-         * If the former returns w/ 404 err, then use the other
-         *   - CORS policy prevents cross-domain calls unfortunately, so we're unable to fetch response (security; XSS prevention)
-         *   - Even w/ mode: 'no-cors', status response msgs are rejected by the server and we're unable to detect err resp status'
-         * Solutions
-         *   - YQL bot? (extra yahoo dependency)
-         *   - ✓✓ html parse to find 404 err + load double webpage (DOM dependency)
-         */
-        // if(obj.webpage === 'planetterp') {
-        //     fourZeroFour = (document.getElementById("content").getElementsByClassName("py-4").length > 0);
-        //     if(fourZeroFour) {
-        //         window.open('https://planetterp.com/professor/' + obj.name, "_self");
-        //     }
+
+        // RMP took down their old API and replaced to GraphQL
+        // Currently, we just redirect user to correct site after finding professor ID from initial link
+        // However, somebody seems to have appropriately handled it in this repo: https://github.com/Jeong-Min-Cho/Rate-My-GMU-Professors?tab=readme-ov-file 
         if(obj.webpage === 'ratemyprofessors') {
             teachers = document.getElementsByClassName("TeacherCard__StyledTeacherCard-syjs0d-0");
             if(teachers.length == 1 && teachers[0].getElementsByClassName("CardSchool__School-sc-19lmz2k-1")[0].textContent === "University of Maryland") {
                 window.open(teachers[0].href, "_self");
             }
         } else if(obj.webpage === 'testudo') {
-            courses = document.getElementsByClassName("course");
-            // allSectionsExpandBtn();
+            
+            // Establish DOM listener for section expansion
             const observer = new MutationObserver(async (mutationList, observer) => {
-                console.log("New mutation triggered!");
                 for (const mutation of mutationList) {
                     if(mutation.type === "childList") {
                         const newData = mutation.addedNodes;
-                        // for(let i = 0; i < courseSections.length; i++) {
-                        //     console.log(courseSections[i]);
-                        // }
                         await processData(newData);
                     }
                 }
-
-                // observer.disconnect();
             });
-            // observer.observe(document.getElementById("UNIV099").getElementsByClassName("sections-fieldset")[0], {childList: true});
-            // observer.observe(document.getElementById("UNIV100").getElementsByClassName("sections-fieldset")[0], {childList: true});
-            // observer.observe(document.getElementById("UNIV106").getElementsByClassName("sections-fieldset")[0], {childList: true});
-            // observer.observe(document.getElementById("UNIV107").getElementsByClassName("sections-fieldset")[0], {childList: true});
-
-            // Per course
+            
+            // Course Iteration
+            courses = document.getElementsByClassName("course");
             for(let i = 0; i < courses.length; i++) {
                 thisCourse = courses[i];
                 infoContainer = thisCourse.getElementsByClassName("course-info-container")[0];
                 courseId = thisCourse.getElementsByClassName("course-id")[0];
                 sectionsData = thisCourse.getElementsByClassName("sections-container");
-                hasSections = sectionsData.length > 0;
+                hasExpandedSections = sectionsData.length > 0;
                 
-                observer.observe(document.getElementById(courseId.textContent).getElementsByClassName("sections-fieldset")[0], {childList: true});
-                // Establishing course links
                 setPTLink(courseId, "course", undefined);
-
-                // Establishing initial instructor links
-                if(hasSections) {
-                    // await setProfLinks(courseId.textContent);
-                    await processData(sectionsData);
-                }
-
-                // Establishing event listeners for section toggle
-                hasSections = thisCourse.getElementsByClassName("toggle-sections-link")[0];
-                hasLinks = thisCourse.getElementsByClassName("rmpreviews-btn").length > 0;
-                if(hasSections && !hasLinks) {
-
-                    // IIFE used to retain "memory" link between correct button & course
-                    (function(name) {
-                        hasSections.addEventListener("click", async () => {
-                            coursesClicked.push(name)
-                            console.log("Clicked section button!");
-                            
-                            // Redundant !hasLinks check is necessary b/c link status may have changed
-                            // within interval of when eventListener was established and when it is triggered 
-                            // hasLinks2 = document.getElementById(name).getElementsByClassName("rmpreviews-btn").length > 0;
-                            // if(!hasLinks2) {
-                                // setTimeout(setProfLinks, 500, name);
-
-                                // await fillData();
-                                // injectData(sections);
-                                // slideTransition(sections);
-                            // }
-                        }, {once: true});
-
-                        const callback = async (mutationList, observer) => {
-                            for (const mutation of mutationList) {
-                                if (mutation.type === "childList") {
-                                    // for(let node = 0; node < mutation.addedNodes.length; node++) {
-                                    //     console.log(name, "(Before) Nodes Added:", mutation.addedNodes[node]);
-                                    // }
-                                    // console.log(mutation.addedNodes)
-                                    // courseCount--;
-                                    const sections = mutation.addedNodes[0];
-                                    await setProfLinks(name, sections);
-                                    if(coursesClicked.includes(name)) {
-                                        await storeData();
-                                        injectData(sections);
-                                        slideTransition(sections);
-                                    }
-
-                                    // if(courseCount == 0) {
-
-                                    // }
-                                    // for(let node = 0; node < mutation.addedNodes.length; node++) {
-                                    //     console.log(name, "(After) Nodes Added:", mutation.addedNodes[node]);
-                                    // }
-                                }
-                            }
-
-                            observer.disconnect();
-                        };
-
-                        // const observer = new MutationObserver(callback);
-                        // observer.observe(document.getElementById(name).getElementsByClassName("sections-fieldset")[0], {childList: true});
-
-                    })(courseId.textContent);
-                }
-
                 setNativeReviews(courseId, infoContainer, obj);
+                
+                if(hasExpandedSections) {
+                    await processData(sectionsData);
+                } else {
+                    hasSections = thisCourse.getElementsByClassName("toggle-sections-link-container").length > 0;
+                    if(hasSections) {
+                        const closedSections = document.getElementById(courseId.textContent).getElementsByClassName("sections-fieldset")[0];
+                        observer.observe(closedSections, {childList: true});
+                    }
+                }
             }
         }
     });
