@@ -1,5 +1,7 @@
 (() => {
     profSet = {};
+    coursesClicked = [];
+    // courseCount = document.getElementsByClassName("course-id").length;
 
     /* Rearranging instructor name for query */
     const swapWords = (professor) => {
@@ -43,62 +45,73 @@
         }
     };
 
-    const fillData = async (course) => {
-        for (let [prof, values] of Object.entries(profSet)) {
+    const injectData2 = (professor, index) => {
+        if(index > 0) {
+            setBreak(professor);
+        }
+        
+        const linkContainer = document.createElement("div");
+        linkContainer.className = "link-container";
+        professor.parentNode.insertBefore(linkContainer, professor);
+        
+        const innerLinkContainer = document.createElement("div");
+        innerLinkContainer.className = "inner-link-container";
+        linkContainer.appendChild(innerLinkContainer);
 
-            // console.log(course, "Professor", prof, "; values.profSlug -", values.profSlug, "; values.profRating - ", values.profRating)
-            console.log(course, "Professor", prof, "; profSet[prof].profSlug -", profSet[prof].profSlug, "; profSet[prof].profRating - ", profSet[prof].profRating)
-            // if(values.profSlug === undefined && values.profRating === undefined) {
-            if(profSet[prof].profSlug === undefined && profSet[prof].profRating === undefined) {
-                console.log("Empty entry! Fetching data", prof);
-                const data = await fetchProf(encodeURI(prof));
-                if(data) {
-                    rating = "";
-                    if(data.average_rating == null) {
-                        rating = "n/a";
-                    } else {
-                        rating = data.average_rating.toFixed(2);
-                    }
-                    profSet[prof] = {profSlug: data.slug, profRating: rating};
-                    // specificTitle = data.slug;
+        setPTLink(professor, "professor", innerLinkContainer);
+        setRMPLink(professor, innerLinkContainer);
+        setProfessorRating(professor);
+    };
+
+    const alignmentShift = (section) => {
+        const courseId = section.getElementsByClassName("section-id-container")[0];
+        const computedStyle = window.getComputedStyle(courseId);
+        courseId.style.width = parseInt(computedStyle.width, 10) - 49 + "px";
+        
+        const instructorsContainer = section.getElementsByClassName("section-instructors-container")[0];
+        const instructorsComputedStyle = window.getComputedStyle(instructorsContainer);
+        instructorsContainer.style.width = parseInt(instructorsComputedStyle.width, 10) + 49 + "px";
+    };
+
+    const fillGlobalMap = async (profName) => {
+        if(!(profName in profSet)) {
+            const data = await fetchProf(encodeURI(profName));
+            if(data) {
+                rating = "";
+                if(data.average_rating == null) {
+                    rating = "n/a";
                 } else {
-                    profSet[prof] = {profSlug: swapWords(prof), profRating: "n/a"};
+                    rating = data.average_rating.toFixed(2);
                 }
+                profSet[profName] = {profSlug: data.slug, profRating: rating};
             } else {
-                console.log("Data entry filled!", prof);
+                profSet[profName] = {profSlug: swapWords(profName), profRating: "n/a"};
             }
         }
+    };
 
-        // sections = addedNode.getElementsByClassName("section-instructors");
+    const processData = async (courses) => {
 
-        // // Per section
-        // for(let i = 0; i < sections.length; i++) {
-        //     sectionProfs = sections[i].getElementsByClassName("section-instructor");
+        // Course iteration
+        for(let i = 0; i < courses.length; i++) {
+            const sections = courses[i].getElementsByClassName("section");
 
-        //     // Per section professor (co-teaching)
-        //     for(let j = 0; j < sectionProfs.length; j++) {
-        //         const specificTitle = sectionProfs[j].textContent;
-        //         if(profSet[specificTitle].profSlug === undefined && profSet[specificTitle].profRating === undefined) {
-        //             const data = await fetchProf(encodeURI(specificTitle));
-        //             if(data) {
-        //                 rating = "";
-        //                 if(data.average_rating == null) {
-        //                     rating = "n/a";
-        //                 } else {
-        //                     rating = data.average_rating.toFixed(2);
-        //                 }
-        //                 profSet[specificTitle] = {profSlug: data.slug, profRating: rating};
-        //                 // specificTitle = data.slug;
-        //             } else {
-        //                 profSet[specificTitle] = {profSlug: swapWords(specificTitle), profRating: "n/a"};
-        //             }
-        //         } 
-        //         // else {
-        //         //     specificTitle = profSet[specificTitle].profSlug;
-        //         // }
-        //         console.log("Tried to fill", specificTitle, profSet[specificTitle]);
-        //     }
-        // }
+            // Section iteration
+            for(let j = 0; j < sections.length; j++) {
+                alignmentShift(sections[j]);
+                const professors = sections[j].getElementsByClassName("section-instructor");
+
+                // Professor iteration
+                for(let k = 0; k < professors.length; k++) {
+                    const professor = professors[k];
+                    const profName = professor.textContent;
+            
+                    await fillGlobalMap(profName);
+                    injectData2(professor, k);
+                }
+            }
+            slideTransition(courses[i]);
+        }
     };
 
     /* Injects PT link */
@@ -252,13 +265,19 @@
     };
 
     /* Insert professor links */
-    const setProfLinks = async (thisCourse, addedNode = undefined) => {
-        // console.log();
-        storePlaceholderData(addedNode);
-        await fillData(thisCourse);
-        injectData(addedNode);
-        slideTransition(addedNode);
-        console.log(profSet);
+    const setProfLinks = async (addedNode) => {
+        // if(addedNode === undefined) {
+            // thisCourse = document.getElementById(courseName);
+            // sections = thisCourse.getElementsByClassName("sections-container")[0];
+            
+            // storePlaceholderData(sections);
+            await storeData(addedNode);
+            injectData(sections);
+            slideTransition(sections);
+            // console.log(profSet);
+        // } else {
+        //     storePlaceholderData(addedNode);
+        // }
 
                 // console.log(thisCourse, "addedNode (before fetch)", addedNode);
                 // for(let prof = 0; prof < sectionProfs.length; prof++) {
@@ -278,25 +297,35 @@
     };
 
     /* User clicks "show all sections" button */
-    const allSectionsExpandBtn = (courses) => {
+    const allSectionsExpandBtn = () => {
 
-        fn = (crses) => {
-            // Per course
-            for(let i = 0; i < crses.length; i++) {
-                thisCourse = crses[i];
-                courseId = thisCourse.getElementsByClassName("course-id")[0];
-                hasLinks = thisCourse.getElementsByClassName("rmpreviews-btn").length > 0;
-                if(!hasLinks) {
-                    // console.log("Going to fetch data for", courseId.textContent);
-                    // setProfLinks(courseId.textContent);
-                    setTimeout(setProfLinks, 1000, courseId.textContent);
-                }
-            }
-        };
+        // fn = (crses) => {
+        //     // Per course
+        //     for(let i = 0; i < crses.length; i++) {
+        //         thisCourse = crses[i];
+        //         courseId = thisCourse.getElementsByClassName("course-id")[0];
+        //         hasLinks = thisCourse.getElementsByClassName("rmpreviews-btn").length > 0;
+        //         if(!hasLinks) {
+        //             // console.log("Going to fetch data for", courseId.textContent);
+        //             // setProfLinks(courseId.textContent);
+        //             setTimeout(setProfLinks, 1000, courseId.textContent);
+        //         }
+        //     }
+        // };
         
         sectionsBtn = document.getElementById("show-all-sections-button");
-        sectionsBtn.addEventListener("click", () => {
-            setTimeout(fn, 600, courses);
+        sectionsBtn.addEventListener("click", async () => {
+            // professors = document.getElementsByClassName("section-instructor");
+            // sections = document.getElementsByClassName("sections-container");
+            courses = document.getElementsByClassName("course-id");
+            // setTimeout(500);
+            // console.log(sections.length);
+            // await fillData();
+            for(let i = 0; i < courses.length; i++) {
+                coursesClicked.push(courses[i].textContent);
+                // injectData(sections[i]);
+                // slideTransition(sections[i]);
+            }
         }, {once: true});
     };
 
@@ -952,21 +981,42 @@
             }
         } else if(obj.webpage === 'testudo') {
             courses = document.getElementsByClassName("course");
-            allSectionsExpandBtn(courses);
+            // allSectionsExpandBtn();
+            const observer = new MutationObserver(async (mutationList, observer) => {
+                console.log("New mutation triggered!");
+                for (const mutation of mutationList) {
+                    if(mutation.type === "childList") {
+                        const newData = mutation.addedNodes;
+                        // for(let i = 0; i < courseSections.length; i++) {
+                        //     console.log(courseSections[i]);
+                        // }
+                        await processData(newData);
+                    }
+                }
+
+                // observer.disconnect();
+            });
+            // observer.observe(document.getElementById("UNIV099").getElementsByClassName("sections-fieldset")[0], {childList: true});
+            // observer.observe(document.getElementById("UNIV100").getElementsByClassName("sections-fieldset")[0], {childList: true});
+            // observer.observe(document.getElementById("UNIV106").getElementsByClassName("sections-fieldset")[0], {childList: true});
+            // observer.observe(document.getElementById("UNIV107").getElementsByClassName("sections-fieldset")[0], {childList: true});
 
             // Per course
             for(let i = 0; i < courses.length; i++) {
                 thisCourse = courses[i];
                 infoContainer = thisCourse.getElementsByClassName("course-info-container")[0];
                 courseId = thisCourse.getElementsByClassName("course-id")[0];
-                expanded = thisCourse.getElementsByClassName("section-instructor").length > 0;
+                sectionsData = thisCourse.getElementsByClassName("sections-container");
+                hasSections = sectionsData.length > 0;
                 
+                observer.observe(document.getElementById(courseId.textContent).getElementsByClassName("sections-fieldset")[0], {childList: true});
                 // Establishing course links
                 setPTLink(courseId, "course", undefined);
 
                 // Establishing initial instructor links
-                if(expanded) {
-                    await setProfLinks(courseId.textContent);
+                if(hasSections) {
+                    // await setProfLinks(courseId.textContent);
+                    await processData(sectionsData);
                 }
 
                 // Establishing event listeners for section toggle
@@ -976,16 +1026,22 @@
 
                     // IIFE used to retain "memory" link between correct button & course
                     (function(name) {
-                        // hasSections.addEventListener("click", () => {
-                        //     console.log("Clicked section button!");
+                        hasSections.addEventListener("click", async () => {
+                            coursesClicked.push(name)
+                            console.log("Clicked section button!");
                             
-                        //     // Redundant !hasLinks check is necessary b/c link status may have changed
-                        //     // within interval of when eventListener was established and when it is triggered 
-                        //     hasLinks2 = document.getElementById(name).getElementsByClassName("rmpreviews-btn").length > 0;
-                        //     if(!hasLinks2) {
-                        //         setTimeout(setProfLinks, 500, name);
-                        //     }
-                        // }, {once: true});
+                            // Redundant !hasLinks check is necessary b/c link status may have changed
+                            // within interval of when eventListener was established and when it is triggered 
+                            // hasLinks2 = document.getElementById(name).getElementsByClassName("rmpreviews-btn").length > 0;
+                            // if(!hasLinks2) {
+                                // setTimeout(setProfLinks, 500, name);
+
+                                // await fillData();
+                                // injectData(sections);
+                                // slideTransition(sections);
+                            // }
+                        }, {once: true});
+
                         const callback = async (mutationList, observer) => {
                             for (const mutation of mutationList) {
                                 if (mutation.type === "childList") {
@@ -993,7 +1049,18 @@
                                     //     console.log(name, "(Before) Nodes Added:", mutation.addedNodes[node]);
                                     // }
                                     // console.log(mutation.addedNodes)
-                                    await setProfLinks(name, mutation.addedNodes[0]);
+                                    // courseCount--;
+                                    const sections = mutation.addedNodes[0];
+                                    await setProfLinks(name, sections);
+                                    if(coursesClicked.includes(name)) {
+                                        await storeData();
+                                        injectData(sections);
+                                        slideTransition(sections);
+                                    }
+
+                                    // if(courseCount == 0) {
+
+                                    // }
                                     // for(let node = 0; node < mutation.addedNodes.length; node++) {
                                     //     console.log(name, "(After) Nodes Added:", mutation.addedNodes[node]);
                                     // }
@@ -1003,8 +1070,8 @@
                             observer.disconnect();
                         };
 
-                        const observer = new MutationObserver(callback);
-                        observer.observe(document.getElementById(name).getElementsByClassName("sections-fieldset")[0], {childList: true});
+                        // const observer = new MutationObserver(callback);
+                        // observer.observe(document.getElementById(name).getElementsByClassName("sections-fieldset")[0], {childList: true});
 
                     })(courseId.textContent);
                 }
