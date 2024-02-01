@@ -6,7 +6,7 @@ Download *Testudo++* as a Chrome Extension [here]().
 ## Table of Contents
 - [Preview](#Preview)
 - [Features](#Features)
-- [Skills/Technologies](#Skills/Technologies)
+- [Skills/Technologies](#Skills-&-Technologies)
 - [Status](#Status)
 - [Contribute!](#Contribute!)
 - [Meta](#Meta)
@@ -31,7 +31,7 @@ Download *Testudo++* as a Chrome Extension [here]().
     - Able to sort by 'Most Recent', 'Most Critical', and 'Most Favorable'
     - Additional information popup window
 
-## Skills/Technologies
+## Skills & Technologies
 - Javascript, HTML, CSS
 - Asynchronous Handling
 - Cross-Origin Resource Sharing (CORS) compliance, limitations, & significance
