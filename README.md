@@ -13,7 +13,7 @@ Download *Testudo++* as a Chrome Extension [here]().
 - [Reflection](#Reflection)
 
 ## Preview
-![](assets/demonstration.gif)
+<img src="assets/demonstration.gif" width=75%>
 
 ## Features
 - Displays average course GPA
@@ -31,7 +31,7 @@ Download *Testudo++* as a Chrome Extension [here]().
     - Able to sort by 'Most Recent', 'Most Critical', and 'Most Favorable'
     - Additional information popup window
 
-## Skills & Technologies
+## Skills and Technologies
 - Javascript, HTML, CSS
 - Asynchronous Handling
 - Cross-Origin Resource Sharing (CORS) compliance, limitations, & significance
@@ -113,4 +113,4 @@ The 'Sort By' criterias were dependent upon two parameters: datetime and rating.
 My first front-end project had some unique rough patches and learning curves. I initially struggled with learning CSS and how HTML and Javascript all work together, but I started to get the hang of it the more I used it. However, the more I used it, the more I realized how bad my previous code had been and more refactoring was necessary to make it look tangibly understandable. I believe that it reached a certain point such that such a significant amount of refactoring would be necessary for my abilities that I did what I could and simply moved on. Looking back at the code, there is definitely some work that could be done to make it better, but as the Spring semester is starting, I don't think I will have the time nor patience to fix it up along with my university workload.
 
 ### Conclusion
-I learned a lot of new skills and concepts doing this project.  I definitely spent more time then I initially thought I would've, but it turned out great. I realized that there are so many components that must be considered - not just the technical aspect of it, but also with the design, implementation, etc. - in order to construct a full-fledged project with a feature set that works in tandum with each other and delivers the optimal experience to the user.  The creative freedom I had with this project was both a positive and negative because it allowed me test many different ideas but also prevented the development timeline from being linear. Also, one of my goals was to avoid an *amateur-ish* design; consequently, there were so many minute elements that ended up consuming most of my time developing and/or fixing.  I learned how to handle promises and asynchronous calling, and my prior experience in a networking class (CMSC417) definitely helped me here since I had already dealt with RPCs in a p2p network when reconstructing Chord.  I also finally learned how to navigate the browser inspect tool to view/make appropriate changes, which accelerated my workflow significantly. Overall, I felt like this project was extremely useful and fun to make. Now, I just have to get people to download it :).
+I learned a lot of new skills and concepts doing this project.  I definitely spent more time then I initially thought I would've, but it turned out great. I realized that there are so many components that must be considered - not just the technical aspect of it, but also with the design, implementation, etc. - in order to construct a full-fledged project with a feature set that works in tandum with each other and delivers the optimal experience to the user.  The creative freedom I had with this project was both a positive and negative because it allowed me test many different ideas but also prevented the development timeline from being linear. Also, one of my goals was to avoid an *amateur-ish* design; consequently, there were so many minute elements that ended up consuming most of my time developing and/or fixing.  I also wanted to keep the design appropriate to the theme that was already set in testudo;  I wanted to make it look like it belonged there. I learned how to handle promises and asynchronous calling, and my prior experience in a networking class (CMSC417) definitely helped me here since I had already dealt with RPCs in a p2p network when reconstructing Chord.  I also finally learned how to navigate the browser inspect tool to view/make appropriate changes, which accelerated my workflow significantly. Overall, I felt like this project was extremely useful and fun to make. Now, I just have to get people to download it :).
