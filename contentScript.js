@@ -492,6 +492,10 @@
         const toggleText = document.createElement("span");
         toggleText.textContent = "Show Reviews";
 
+        const extraInfo = document.createElement("img");
+        extraInfo.className = "extra-info";
+        extraInfo.src = chrome.runtime.getURL("assets/extra_info_icon.png");
+
         const courseReviewsBody = document.createElement("div");
         courseReviewsBody.className = "course-reviews-body";
 
@@ -504,6 +508,7 @@
         reviewsCriteria.appendChild(sortBy);
         legend.appendChild(courseReviewsToggleBtn);
         legend.appendChild(reviewsCriteria);
+        legend.appendChild(extraInfo);
         courseReviewsFieldset.appendChild(legend);
         courseReviewsFieldset.appendChild(courseReviewsBody);
         courseReviewsContainer.appendChild(courseReviewsFieldset);
@@ -763,6 +768,8 @@
                     courseReviewsFieldset.style.transition = "padding-bottom 0.7s ease-in-out, padding-top 0.7s ease-in-out";
                     courseReviewsFieldset.style.paddingTop = "0px";
                     courseReviewsFieldset.style.paddingBottom = "0px";
+                    extraInfo.style.marginBottom = "3px";
+                    extraInfo.style.width = "0px";
                     courseReviewsBody.style.paddingTop = "0px";
                     courseReviewsBody.style.paddingBottom = "0px";
 
@@ -785,6 +792,8 @@
                     matchingCourseBody.style.display = "block";
                     filterBy.style.display = "inline-flex";
                     sortBy.style.display = "inline-flex";
+                    extraInfo.style.marginBottom = "-6px";
+                    extraInfo.style.width = "20px";
 
                     if(matchingCourseBody.scrollHeight < 450) {
                         matchingCourseBody.style.maxHeight = matchingCourseBody.scrollHeight + "px";
@@ -797,6 +806,23 @@
                 }
             });
         })(courseId.textContent);
+
+        extraInfo.addEventListener('mouseover', () => {
+            extraInfo.style.marginBottom = '-8px';
+            extraInfo.style.width = '24px';
+            extraInfo.style.paddingLeft = '6px';
+        });
+
+        extraInfo.addEventListener('mouseout', () => {
+            extraInfo.style.marginBottom = "-6px";
+            extraInfo.style.width = "20px";
+            extraInfo.style.paddingLeft = '8px';
+        });
+
+        extraInfo.addEventListener('click', () => {
+            const popUp = document.getElementById("pop-up");
+            popUp.showModal();
+        });
 
         courseReviewsBody.addEventListener("transitionstart", () => {
             loading = document.getElementById("loading");
@@ -839,6 +865,25 @@
         courseDetails.appendChild(avgGPA);
     };
 
+    /* Pop-up box for professor reviews extra information icon */
+    const setPopUP = () => {
+        const popUp = document.createElement("dialog");
+        popUp.id = "pop-up";
+
+        const popUpText = document.createElement("div");
+        popUpText.id = "pop-up-text";
+        popUpText.innerHTML = "<h3>Note:</h3>The corresponding professor reviews are just for <b>this</b> course. It does <b>not include other course reviews</b> in classes the professor(s) have also taught. If you want to read more reviews from other courses they have taught, click the link(s) located in the sections window next to each appropriate professor.";
+        
+        popUp.addEventListener('click', (event) => {
+            if(event.target.id !== 'pop-up-text') {
+                popUp.close();
+            }
+        });
+
+        popUp.appendChild(popUpText);
+        document.getElementById("umd-frame").appendChild(popUp);
+    };
+
     chrome.runtime.onMessage.addListener(async (obj, sender, response) => {
 
         // RMP took down their old API and replaced to GraphQL
@@ -860,6 +905,8 @@
                     }
                 }
             });
+
+            setPopUP();
             
             // Course Iteration
             courses = document.getElementsByClassName("course");
