@@ -6,7 +6,7 @@ Download *Testudo++* as a Chrome Extension [here]().
 ## Table of Contents
 - [Preview](#Preview)
 - [Features](#Features)
-- [Skills/Technologies](#Skills-&-Technologies)
+- [Skills and Technologies](#Skills-and-Technologies)
 - [Status](#Status)
 - [Contribute!](#Contribute!)
 - [Meta](#Meta)
