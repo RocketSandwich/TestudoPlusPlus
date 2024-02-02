@@ -8,12 +8,17 @@ Download *Testudo++* as a Chrome Extension [here]().
 - [Features](#Features)
 - [Skills and Technologies](#Skills-and-Technologies)
 - [Status](#Status)
-- [Contribute!](#Contribute!)
+- [Contribute](#Contribute)
 - [Meta](#Meta)
 - [Reflection](#Reflection)
 
 ## Preview
+### Demonstration
 <img src="assets/demonstration.gif" width=75%>
+
+### Poster
+![Advertisement Poster](assets/FinalPosterImg.jpg)
+(I should've been a graphic design major b/c this poster is just too cool tbh.)
 
 ## Features
 - Displays average course GPA
@@ -64,7 +69,7 @@ Just finished the initial release (1.0.0).  I might take a break from this for a
 - *Find way to alleviate maintainence hour access
     - Just an idea: Fetch local copies of transcript, schedule, etc., and use [chrome.storage](https://developer.chrome.com/docs/extensions/reference/api/storage) as "snapshots" since last updated
 
-## Contribute!
+## Contribute
 Pull requests are the best way to propose changes to the codebase. I actively welcome your pull requests:
 
 1. Fork the repo and create your own feature branch from main.
