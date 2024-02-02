@@ -18,7 +18,9 @@ Download *Testudo++* as a Chrome Extension [here]().
 
 ### Poster Advertisement
 <img src="assets/FinalPosterImg.jpg" width=50%>
-I should've been a graphic design major b/c this poster is just too cool tbh. It's supposed to be a reference to Michelangelo's [The Creation of Adam](https://en.wikipedia.org/wiki/The_Creation_of_Adam).
+
+I should've been a graphic design major b/c this poster is just too cool tbh.  
+It's supposed to be a reference to Michelangelo's [The Creation of Adam](https://en.wikipedia.org/wiki/The_Creation_of_Adam).
 
 ## Features
 - Displays average course GPA
