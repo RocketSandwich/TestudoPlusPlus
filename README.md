@@ -4,7 +4,7 @@ A streamlined process for reviewing course details and professor evaluations int
 Download *Testudo++* as a Chrome Extension [here]().
 
 ## Table of Contents
-- [Preview](#Preview)
+- [Previews](#Previews)
 - [Features](#Features)
 - [Skills and Technologies](#Skills-and-Technologies)
 - [Status](#Status)
@@ -12,12 +12,12 @@ Download *Testudo++* as a Chrome Extension [here]().
 - [Meta](#Meta)
 - [Reflection](#Reflection)
 
-## Preview
+## Previews
 ### Demonstration
 <img src="assets/demonstration.gif" width=75%>
 
-### Poster
-![Advertisement Poster](assets/FinalPosterImg.jpg)
+### Poster Advertisement
+<img src="assets/FinalPosterImg.jpg" width=50%>
 (I should've been a graphic design major b/c this poster is just too cool tbh.)
 
 ## Features
