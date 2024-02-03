@@ -15,7 +15,7 @@ Or search for it in the Google Chrome Web Store!
 
 ## Previews
 ### Demonstration
-<img src="assets/demonstration.gif" width=80%>
+<img src="assets/demonstration.gif" width=85%>
 
 ### Poster Advertisement
 <img src="assets/FinalPosterImg.jpg" width=50%>
