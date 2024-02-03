@@ -1,7 +1,7 @@
 # Testudo++
 A streamlined process for reviewing course details and professor evaluations integrated as a browser extension on https://app.testudo.umd.edu/soc/ using the PlanetTerp API. 
 
-Download *Testudo++* as a Chrome Extension [here](https://chromewebstore.google.com/detail/testudo++/fgjllkiccpfacobekfcnldelggcgnnic).
+Download *Testudo++* as a Chrome Extension [here](https://chromewebstore.google.com/detail/testudo++/fgjllkiccpfacobekfcnldelggcgnnic).  
 Or search for it in the Google Chrome Web Store!
 
 ## Table of Contents
