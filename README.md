@@ -84,7 +84,7 @@ Distributed under the MIT license. See ``LICENSE`` for more information.
 
 ## Meta
 Timeline: (December 20th, 2023 - February 1st, 2024)  
-Made by Joshua Nguyen: 3rd Year Undergraduate @ University of Maryland: College Park
+Made by Joshua Nguyen: UMDcs'25
 - [LinkedIn](https://www.linkedin.com/in/joshua-nguyen-666837241/)
 - nguyen.trong.joshua@gmail.com
 
