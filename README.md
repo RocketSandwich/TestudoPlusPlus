@@ -56,10 +56,12 @@ Just finished the initial release (1.0.0).  I might take a break from this for a
     - This would help provide extra context to the 'Avg GPA' value by showing the sample size
     - It should be relatively easily to implement given the PT API grades request, although it would be a bit time-consuming
     - Worried about minimizing API calls since course-page lists can extend pretty long (avoid rate limiting)
+- Be able to sort by avg GPA
 - Make reviews window size manually re-adjustable  
     - Corner tab to vertically-drag and expand/shrink container
 - Design functional extension icon popup window
     - Can manually toggle links, reviews, layout, etc. for customization
+- Add a share button to copy a clean link of desired course
 - Significantly refactor codebase
     - I definitely know that large improvements could be made in the way it's coded and organized
 - Fix random instances of "Extension context invalidated" Error Message
