@@ -981,6 +981,112 @@
         document.getElementById("umd-frame").appendChild(popUp);
     };
 
+    /* Establishes option for sorting courses by avg GPA */
+    const setGPASort = () => {
+        const sortWrapper = document.createElement("div");
+        const sortLabel = document.createElement("div");
+        const sortGPABox = document.createElement("select");
+        sortGPABox.id = "sort-by-gpa";
+        sortWrapper.style.display = "ruby";
+        sortWrapper.style.lineHeight = "21px";
+        sortWrapper.style.float = "inherit";
+        sortWrapper.style.marginLeft = "-10px";
+        sortWrapper.style.paddingRight = "5px";
+
+        const standardSort = document.createElement("option");
+        const highestGPA = document.createElement("option");
+        const lowestGPA = document.createElement("option");
+        const highestCredit = document.createElement("option");
+        const lowestCredit = document.createElement("option");
+
+        standardSort.selected = true;
+        standardSort.textContent = "Standard";
+        standardSort.value = "Standard";
+        highestGPA.textContent = "Highest Avg GPA";
+        highestGPA.value = "Highest Avg GPA";
+        lowestGPA.textContent = "Lowest Avg GPA";
+        lowestGPA.value = "Lowest Avg GPA";
+        sortLabel.textContent = "Sort By: ";
+        sortLabel.style.paddingRight = "2px";
+        sortLabel.style.fontSize = "medium";
+        highestCredit.textContent = "Highest Credits";
+        highestCredit.value = "Highest Credits";
+        lowestCredit.textContent = "Lowest Credits";
+        lowestCredit.value = "Lowest Credits";
+        
+        sortGPABox.appendChild(standardSort);
+        sortGPABox.appendChild(highestGPA);
+        sortGPABox.appendChild(lowestGPA);
+        sortGPABox.appendChild(highestCredit);
+        sortGPABox.appendChild(lowestCredit);
+        sortWrapper.appendChild(sortLabel);
+        sortWrapper.appendChild(sortGPABox);
+
+        const expdSections = document.getElementById("show-all-sections-button-wrapper");
+        const introRow = expdSections.parentNode;
+        introRow.previousElementSibling.className = "seven columns";
+        introRow.className = "four columns";
+        introRow.insertBefore(sortWrapper, expdSections);
+
+        sortGPABox.addEventListener("input", (event) => {
+            const courseContainers = document.getElementsByClassName("courses-container");
+            
+            for(let i = 0; i < courseContainers.length; i++) {
+                const courseElems = courseContainers[i].getElementsByClassName("course");
+            
+                // Convert NodeList to array for easier sorting
+                courseArray = Array.from(courseElems);
+
+                if(event.target.value == "Standard") {
+                    courseArray.sort(function(a, b) {
+                        // Get the text content of the child elements with class "course-id"
+                        const idA = a.querySelector('.course-id').textContent;
+                        const idB = b.querySelector('.course-id').textContent;
+
+                        // Use localeCompare for alphanumeric sorting
+                        return idA.localeCompare(idB, 'en', {numeric: true});
+                    });
+                } else if(event.target.value == "Highest Credits") {
+                    courseArray.sort(function(a, b) {
+                        const creditA = a.querySelector('.course-min-credits').textContent;
+                        const creditB = b.querySelector('.course-min-credits').textContent;
+                        return creditB - creditA;
+                    });
+                } else if(event.target.value == "Lowest Credits") {
+                    courseArray.sort(function(a, b) {
+                        const creditA = a.querySelector('.course-min-credits').textContent;
+                        const creditB = b.querySelector('.course-min-credits').textContent;
+                        return creditA - creditB;
+                    });
+                } else if(event.target.value == "Highest Avg GPA") {
+                    courseArray.sort(function(a, b) {
+                        const gpaA = parseFloat(a.getAttribute("data-gpa"));
+                        const gpaB = parseFloat(b.getAttribute("data-gpa"));
+                        return gpaB - gpaA;
+                    });
+                } else if(event.target.value == "Lowest Avg GPA") {
+                    courseArray.sort(function(a, b) {
+                        const gpaA = parseFloat(a.getAttribute("data-gpa"));
+                        const gpaB = parseFloat(b.getAttribute("data-gpa"));
+                    
+                        // If either gpaA or gpaB is -1, handle separately
+                        if (gpaA === -1 && gpaB !== -1) {
+                            return 1; // Put -1 value at the end
+                        } else if (gpaA !== -1 && gpaB === -1) {
+                            return -1; // Put -1 value at the end
+                        } else {
+                            return gpaA - gpaB; // Otherwise, sort normally
+                        }
+                    });
+                }
+            
+                courseArray.forEach(function(course) {
+                    courseContainers[i].appendChild(course);
+                });
+            }
+        });
+    };
+
     chrome.runtime.onMessage.addListener(async (obj, sender, response) => {
 
         // RMP took down their old API and replaced to GraphQL
@@ -1029,6 +1135,8 @@
                     }
                 }
             }
+
+            setGPASort();
         }
     });
 })();
