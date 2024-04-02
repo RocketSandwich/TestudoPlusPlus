@@ -52,24 +52,31 @@ It's supposed to be a reference to Michelangelo's [The Creation of Adam](https:/
 ## Status
 Just finished the initial release (1.0.0).  I might take a break from this for a bit since the base feature set is developed enough, but there is still more that I've thought to add/fix.
 ### Future Implementations
-- Display the total student count next to the 'Avg GPA'
+#### v1.1.0
+- Display the total enrollment count next to the 'Avg GPA'
     - This would help provide extra context to the 'Avg GPA' value by showing the sample size
     - It should be relatively easily to implement given the PT API grades request, although it would be a bit time-consuming
     - Worried about minimizing API calls since course-page lists can extend pretty long (avoid rate limiting)
-- Be able to sort by avg GPA
+- Be able to sort courses listing by criteria
+    - GPA: High vs Low
+    - Enrollment Count: High vs Low
+    - Avg Rating: High vs Low
+    - Review Count: High vs Low
 - Make reviews window size manually re-adjustable  
     - Corner tab to vertically-drag and expand/shrink container
-- Design functional extension icon popup window
-    - Can manually toggle links, reviews, layout, etc. for customization
 - Add a share button to copy a clean link of desired course
+- *Migrate extension to support other browsers (Safari, firefox, etc.)
+
+#### Others
 - Significantly refactor codebase
     - I definitely know that large improvements could be made in the way it's coded and organized
+- Design functional extension icon popup window
+    - Can manually toggle links, reviews, layout, etc. for customization
 - Fix random instances of "Extension context invalidated" Error Message
     - "Extension is unloaded, the existing content scripts lose their connection to the rest of the extension—i.e. ports close, and they would be unable to use runtime.sendMessage()—but the content scripts themselves still continue to work, as they're already injected into their pages... Problems can arise if either: (1) your original content script is still trying to communicate with the rest of the extension or (2) your original content script does things like modify the DOM, as you could end up with those changes done more than once."
     - An informative thread: https://stackoverflow.com/questions/53939205/how-to-avoid-extension-context-invalidated-errors-when-messaging-after-an-exte
 - Potentially integrate with some other public testudo extensions
     - Schedule Importer, etc.
-- Migrate extension to support other browsers (Safari, firefox, etc.)
 - Add support for different screen dimensions (mobile phone & tablet)
 - *Find way to alleviate maintainence hour access
     - Just an idea: Fetch local copies of transcript, schedule, etc., and use [chrome.storage](https://developer.chrome.com/docs/extensions/reference/api/storage) as "snapshots" since last updated
@@ -100,6 +107,8 @@ One of my biggest concerns with utilizing PlanetTerp data was trying my best to 
 
 #### Request Count vs Size Tradeoffs
 Another concern regarding data fetching was debating whether I should have a single request for a large chunk of data vs many requests for much smaller, individual pieces of data. I initially thought about loading a significant amount up-front so that the user wouldn't have to worry about making more requests later on - intrducing more network dependency -; however, I opted for the smaller, discrete approach for a couple of reasons. First, the PT API did not allow me to make large targeted requests, meaning that I would inevitably be requesting more data than what was necessary. Second, by delaying the fetch calls to strictly when the user needs them, it helps tackle the prior challenge by further minimizing the total API requests.  I'll only request data for the courses the user clicks; not all of them.
+
+Edit: Due to the implementation of the new feature 'Avg Rating' for each course and the functional design to sort by it, I am forced to fetch all reviews up-front.
 
 #### Dynamic DOM Injection
 Probably one of the the first obstacles I encountered was finding a way to properly inject the content that I want but into a location that doesn't exist yet. I intended to inject the professor links next to the appropriate professor in the 'Sections Window'; however, I wasn't able to do that until it was expanded, since those elements don't exist in the DOM yet. First, I tried to implement a eventListener upon the 'Show Sections' button was clicked to inject the links, but that didn't work because the click event would always happen *before* the actual DOM section elements were added. Second, I implemented a setTimeout(n) to wait 'n' milliseconds for the sections to load before injecting my links, and it worked! Sadly, it was now dependent on the network speeds because if the sections downloaded slower than 'n' ms, then the links would fail (which happened many times).  Third, I found the mutationObserver API, which actually was able to detect changes in the DOM and directly act in response to those changes. Now it finally worked worked.

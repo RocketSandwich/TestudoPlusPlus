@@ -2,6 +2,7 @@
 
 (() => {
     profSet = {};
+    // globalRvws = {};
 
     /* Rearranging instructor name for query */
     const swapWords = (professor) => {
@@ -22,6 +23,45 @@
     
             const data = await response.json();
             console.log(data); 
+            return data;
+        } catch (error) {
+            console.log("Error during fetch:", error);
+            return undefined;
+            // throw error; 
+        }
+    };
+
+    /* Fetching grades data from PT API */
+    const fetchGrades = async (course, prof) => {
+        try {
+            const response = await fetch("https://planetterp.com/api/v1/grades?course=" + course + "&professor=" + prof);
+    
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+    
+            const data = await response.json();
+            console.log(data); 
+            return data;
+        } catch (error) {
+            console.log("Error during fetch:", error);
+            return undefined;
+            // throw error; 
+        }
+    };
+
+    /* Fetches data for corresponding course */
+    const fetchReviewsData = async (courseName) => {
+        try {
+            const response = await fetch("https://planetterp.com/api/v1/course?name=" + courseName + "&reviews=true");
+    
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+    
+            const data = await response.json();
+            console.log(data); 
+            // globalRvws[courseName] = data;
             return data;
         } catch (error) {
             console.log("Error during fetch:", error);
@@ -151,16 +191,6 @@
         PTLink.appendChild(imgElem);
         if(type == "course") {
             sectionInstructor.parentNode.appendChild(PTLink);
-            // const data = await fetchCourse(sectionInstructor.textContent);
-            // const avgGPA = document.createElement("div");
-            // avgGPA.className = "average-course-gpa";
-            // if(data) {
-            //     avgGPA.textContent = "Average GPA of " + data.average_gpa.toFixed(2);// + " between " + num + " students";
-            // } else {
-            //     avgGPA.textContent = "Average GPA of ?";
-            // }
-            // const courseDetails = sectionInstructor.parentNode.parentNode.getElementsByClassName("course-basic-info-container")[0];
-            // courseDetails.appendChild(avgGPA)
         } else {
             linkContainer.appendChild(PTLink);
         }
@@ -236,25 +266,6 @@
         }
     };
 
-    /* Fetches data for corresponding course */
-    const fetchReviewsData = async (courseName) => {
-        try {
-            const response = await fetch("https://planetterp.com/api/v1/course?name=" + courseName + "&reviews=true");
-    
-            if (!response.ok) {
-                throw new Error("Network response was not ok");
-            }
-    
-            const data = await response.json();
-            console.log(data); 
-            return data;
-        } catch (error) {
-            console.log("Error during fetch:", error);
-            return undefined;
-            // throw error; 
-        }
-    };
-
     /* Get Instructor Name Width */
     const getWidth = (event) => {
 
@@ -270,7 +281,7 @@
         return w;
     };
 
-    /* Used to get active course professors w/o having to expand sections container (Experiment w/ ajax calls?) */
+    /* Used to get active course professors w/o having to expand sections container */
     const fetchSections = async (courseName, urlParams) => {
         try {
             const response = await fetch("/soc/search?courseId=" + courseName + "&sectionId=&termId=" + urlParams.termId + "&_openSectionsOnly=on&creditCompare=&credits=&genEdCode=ALL&courseLevelFilter=ALL&instructor=&_facetoface=on&_blended=on&_online=on&courseStartCompare=&courseStartHour=&courseStartMin=&courseStartAM=&courseEndHour=&courseEndMin=&courseEndAM=&teachingCenter=ALL&_classDay1=on&_classDay2=on&_classDay3=on&_classDay4=on&_classDay5=on");
@@ -532,6 +543,7 @@
                     event.target.parentNode.parentNode.appendChild(loading);
 
                     data = await fetchReviewsData(courseName);
+                    // data = globalRvws[courseName];
                     matchingCourse = document.getElementById(courseName);
                     matchingCourseBody = matchingCourse.getElementsByClassName("course-reviews-body")[0];
 
@@ -852,17 +864,102 @@
     };
 
     /* Inserting average GPA for designated course */
-    const setAvgGPA = async (courseId) => {
-        const data = await fetchCourse(courseId.textContent);
-        const avgGPA = document.createElement("div");
-        avgGPA.className = "average-course-gpa";
+    const getAvgGPA = (courseId, data) => {
+        avgGPA = 0;
         if(data && data.average_gpa) {
-            avgGPA.textContent = "Avg GPA: " + data.average_gpa.toFixed(2);// + " between " + num + " students";
+            avgGPA = data.average_gpa.toFixed(2);
         } else {
-            avgGPA.textContent = "Avg GPA: (not listed)";
+            avgGPA = "(not listed)";
         }
+        return avgGPA;
+    };
+
+    /* Inserting total student enrollment count for designated course */
+    const getEnrollmentCount = async (courseId, data) => {
+        totalCount = 0;
+        if(data && data.professors) {
+            for(let i = 0; i < data.professors.length; i++) {
+                const gradesData = await fetchGrades(courseId.textContent, data.professors[i]);
+                if(gradesData) {
+                    for(let j = 0; j < gradesData.length; j++) {
+                        distribution = gradesData[j];
+                        totalCount += (distribution["A+"] + distribution["A"] + distribution["A-"] 
+                        + distribution["B+"] + distribution["B"] + distribution["B-"] 
+                        + distribution["C+"] + distribution["C"] + distribution["C-"] 
+                        + distribution["D+"] + distribution["D"] + distribution["D-"] 
+                        + distribution["F"]);
+                    }
+                }
+            }
+        } else {
+            totalCount = -1;
+        }
+        return totalCount;
+    };
+
+    const setGPAEnrollment = (courseId, avgGPA, enrollmentCount) => {
+        const gpaEnrollment = document.createElement("div");
+        gpaEnrollment.className = "gpa-and-enrollment";
+        if(enrollmentCount == -1) {
+            gpaEnrollment.textContent = "Avg GPA: " + avgGPA;
+        } else {
+            gpaEnrollment.textContent = "Avg GPA: " + avgGPA + " between " + enrollmentCount + " students";
+        }
+
         const courseDetails = courseId.parentNode.parentNode.getElementsByClassName("course-basic-info-container")[0];
-        courseDetails.appendChild(avgGPA);
+        const courseCard = courseDetails.parentNode.parentNode.parentNode;
+        if(avgGPA == "(not listed)") {
+            courseCard.setAttribute("data-gpa", -1);
+        } else {
+            courseCard.setAttribute("data-gpa", avgGPA);
+        }
+        courseDetails.appendChild(gpaEnrollment);
+    };
+
+    const setRatingCount = (courseId, data) => {
+        if(data && data.reviews) {
+            if(data.reviews.length > 0) {
+                const rvwRatingCount = document.createElement("div");
+                rvwRatingCount.className = "review-rating-and-count";
+                avgRating = 0;
+                rvwCount = 0;
+                for(let i = 0; i < data.reviews.length; i++) {
+                    avgRating += data.reviews[i].rating;
+                    rvwCount++;
+                }
+                avgRating /= rvwCount;
+                rvwRatingCount.textContent = "Avg Rating: " + avgRating.toFixed(2) + "★ between " + rvwCount + " reviews";
+                const courseDetails = courseId.parentNode.parentNode.getElementsByClassName("course-basic-info-container")[0];
+                courseDetails.appendChild(rvwRatingCount);
+            }
+        } 
+    };
+
+    /* Establishes & injects all relevant course statistics (Avg GPA, Enrollment Count, Avg Rating, & Review Count) */
+    // - Avg GPA: DONE
+    // - Enrollment Count: 
+    //      - Use previously fetched Course data (from 'Avg GPA') to get 'professors' list data
+    //      - Iterate through 'professors' list & fetch Grades data for each
+    //      - Aggregate counts for all grades
+    // - Avg Rating: 
+    //      - *** ISSUE: This data isn't available until 'Reviews' window has expanded 
+    //             - I don't want to request everything up-front b/c that would be WAY TOO MUCH
+    //             - Would have to request ALL reviews for EVERY SINGLE COURSE listed on the page
+    //             - SOLUTION: I think I will have to fetch all requests up-front :(
+    //             - NEW SOUTION: Only include avg GPA :(
+    //      - Iterate through reviews 'data-stars' & avg them out 
+    // - Review Count:
+    //      - Aggregate review count
+
+    // Ex) Avg GPA: 3.83 between 1,460 students
+    //     Avg Rating: 4.12★ between 23 reviews
+    const setCourseStats = async (courseId) => {
+        const data = await fetchCourse(courseId.textContent);
+        const avgGPA = getAvgGPA(courseId, data);
+        // const enrollmentCount = await getEnrollmentCount(courseId, data);
+        // setGPAEnrollment(courseId, avgGPA, enrollmentCount);
+        setGPAEnrollment(courseId, avgGPA, 69);
+        // setRatingCount(courseId, data);
     };
 
     /* Pop-up box for professor reviews extra information icon */
@@ -917,7 +1014,8 @@
                 sectionsData = thisCourse.getElementsByClassName("sections-container");
                 hasExpandedSections = sectionsData.length > 0;
                 
-                setAvgGPA(courseId);
+                // setAvgGPA(courseId);
+                await setCourseStats(courseId);
                 setPTLink(courseId, "course", undefined);
                 setNativeReviews(courseId, infoContainer, obj);
                 
