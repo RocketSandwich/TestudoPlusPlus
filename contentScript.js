@@ -916,6 +916,21 @@
         courseDetails.appendChild(gpaEnrollment);
     };
 
+    const setGPA = (courseId, avgGPA) => {
+        const gpaEnrollment = document.createElement("div");
+        gpaEnrollment.className = "gpa-and-enrollment";
+        gpaEnrollment.textContent = "Avg GPA: " + avgGPA;
+
+        const courseDetails = courseId.parentNode.parentNode.getElementsByClassName("course-basic-info-container")[0];
+        const courseCard = courseDetails.parentNode.parentNode.parentNode;
+        if(avgGPA == "(not listed)") {
+            courseCard.setAttribute("data-gpa", -1);
+        } else {
+            courseCard.setAttribute("data-gpa", avgGPA);
+        }
+        courseDetails.appendChild(gpaEnrollment);
+    };
+
     const setRatingCount = (courseId, data) => {
         if(data && data.reviews) {
             if(data.reviews.length > 0) {
@@ -958,7 +973,7 @@
         const avgGPA = getAvgGPA(courseId, data);
         // const enrollmentCount = await getEnrollmentCount(courseId, data);
         // setGPAEnrollment(courseId, avgGPA, enrollmentCount);
-        setGPAEnrollment(courseId, avgGPA, 69);
+        setGPA(courseId, avgGPA);
         // setRatingCount(courseId, data);
     };
 
