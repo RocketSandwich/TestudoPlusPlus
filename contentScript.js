@@ -31,25 +31,6 @@
         }
     };
 
-    /* Fetching grades data from PT API */
-    const fetchGrades = async (course, prof) => {
-        try {
-            const response = await fetch("https://planetterp.com/api/v1/grades?course=" + course + "&professor=" + prof);
-    
-            if (!response.ok) {
-                throw new Error("Network response was not ok");
-            }
-    
-            const data = await response.json();
-            console.log(data); 
-            return data;
-        } catch (error) {
-            console.log("Error during fetch:", error);
-            return undefined;
-            // throw error; 
-        }
-    };
-
     /* Fetches data for corresponding course */
     const fetchReviewsData = async (courseName) => {
         try {
@@ -875,22 +856,19 @@
     };
 
     /* Inserting total student enrollment count for designated course */
-    const getEnrollmentCount = async (courseId, data) => {
+    const getEnrollmentCount = (courseId, data) => {
         totalCount = 0;
         if(data && data.professors) {
-            for(let i = 0; i < data.professors.length; i++) {
-                const gradesData = await fetchGrades(courseId.textContent, data.professors[i]);
-                if(gradesData) {
-                    for(let j = 0; j < gradesData.length; j++) {
-                        distribution = gradesData[j];
-                        totalCount += (distribution["A+"] + distribution["A"] + distribution["A-"] 
-                        + distribution["B+"] + distribution["B"] + distribution["B-"] 
-                        + distribution["C+"] + distribution["C"] + distribution["C-"] 
-                        + distribution["D+"] + distribution["D"] + distribution["D-"] 
-                        + distribution["F"]);
-                    }
-                }
-            }
+            const myWorker = new Worker(chrome.runtime.getURL("webworker.js"));
+            myWorker.postMessage({courseName: courseId.textContent, professors: data.professors});
+            myWorker.onmessage = (e) => {
+                totalCount = e.data;
+                const thisCourse = document.getElementById(courseId.textContent);
+                const stats = thisCourse.getElementsByClassName("gpa-and-enrollment")[0];
+                stats.textContent = stats.textContent.substring(0, 22) + totalCount + " students";
+                myWorker.terminate();
+            };
+            totalCount = "...";
         } else {
             totalCount = -1;
         }
@@ -956,9 +934,8 @@
     const setCourseStats = async (courseId) => {
         const data = await fetchCourse(courseId.textContent);
         const avgGPA = getAvgGPA(courseId, data);
-        // const enrollmentCount = await getEnrollmentCount(courseId, data);
-        // setGPAEnrollment(courseId, avgGPA, enrollmentCount);
-        setGPAEnrollment(courseId, avgGPA, 69);
+        const enrollmentCount = getEnrollmentCount(courseId, data);
+        setGPAEnrollment(courseId, avgGPA, enrollmentCount);
         // setRatingCount(courseId, data);
     };
 
