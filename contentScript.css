@@ -148,3 +148,37 @@
 #loading {
     display: inline-flex;
 }
+
+.share-wrapper {
+    position: relative;
+    display: contents;
+}
+
+.share-wrapper .share-text {
+    visibility: hidden;
+    width: 100px;
+    background-color: #555;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px;
+    position: absolute;
+    z-index: 1;
+    bottom: 150%;
+    left: 50%;
+    margin-left: -44px;
+    margin-bottom: -75px;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.share-wrapper .share-text::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #555 transparent transparent transparent;
+}

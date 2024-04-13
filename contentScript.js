@@ -3,6 +3,7 @@
 (() => {
     profSet = {};
     // globalRvws = {};
+    termId = 0;
 
     /* Rearranging instructor name for query */
     const swapWords = (professor) => {
@@ -162,12 +163,46 @@
         }
     };
 
+    /* Injects share btn */
+    const setShareLink = (courseName) => {
+        const shareWrapper = document.createElement("div");
+        shareWrapper.className = "share-wrapper";
+
+        const shareBtn = document.createElement("img");
+        shareBtn.src = chrome.runtime.getURL("assets/share_icon.png");
+        shareBtn.className = "share-img";
+        shareBtn.alt = "Share Course (Copy link)";
+        shareBtn.title = "Share Course (Copy link)";
+        shareBtn.style.width = "40%";
+        shareBtn.style.paddingLeft = "7px";
+        shareBtn.style.cursor = "pointer";
+        
+        const shareText = document.createElement("span");
+        shareText.className = "share-text";
+
+        shareBtn.addEventListener('click', () => {
+            navigator.clipboard.writeText("https://app.testudo.umd.edu/soc/search?courseId=" + courseName + "&sectionId=&termId=" + termId + "&_openSectionsOnly=on&creditCompare=&credits=&genEdCode=ALL&courseLevelFilter=ALL&instructor=&_facetoface=on&_blended=on&_online=on&courseStartCompare=&courseStartHour=&courseStartMin=&courseStartAM=&courseEndHour=&courseEndMin=&courseEndAM=&teachingCenter=ALL&_classDay1=on&_classDay2=on&_classDay3=on&_classDay4=on&_classDay5=on")
+            shareText.style.visibility = "visible";
+            shareText.style.opacity = 1;
+            shareText.innerHTML = "Copied<br>Course Link!";
+
+            setTimeout(() => {shareText.style.visibility = "hidden"}, 1500);
+        });
+        shareBtn.addEventListener('mouseover', () => {shareBtn.src = chrome.runtime.getURL("assets/share_icon2.png")});
+        shareBtn.addEventListener('mouseout', () => {shareBtn.src = chrome.runtime.getURL("assets/share_icon.png")});
+
+        shareWrapper.appendChild(shareBtn);
+        shareWrapper.appendChild(shareText);
+
+        return shareWrapper;
+    };
+
     /* Injects PT link */
     const setPTLink = async (sectionInstructor, type, linkContainer) => {
         
         const PTLink = document.createElement("a");
         if(type == "course") {
-            PTLink.href = "https://planetterp.com/" + type + "/" + sectionInstructor.textContent; // sectionInstructor is really 'courseId'
+            PTLink.href = "https://planetterp.com/" + type + "/" + sectionInstructor.textContent; // sectionInstructor is really 'courseId'; need to refactor :(
         } else {
             PTLink.href = "https://planetterp.com/" + type + "/" + profSet[sectionInstructor.textContent].profSlug;
         }
@@ -181,6 +216,7 @@
         imgElem.className = "pt-img";
         imgElem.alt = "PlanetTerp";
         if(type == "course") {
+            imgElem.style.paddingTop = "4px";
             imgElem.style.width = "40%";
         } else {
             imgElem.className = "pt-img professor";
@@ -191,6 +227,7 @@
         PTLink.appendChild(imgElem);
         if(type == "course") {
             sectionInstructor.parentNode.appendChild(PTLink);
+            sectionInstructor.parentNode.appendChild(setShareLink(sectionInstructor.textContent));
         } else {
             linkContainer.appendChild(PTLink);
         }
@@ -998,6 +1035,12 @@
 
     /* Establishes option for sorting courses by avg GPA */
     const setGPASort = () => {
+
+        loading = document.getElementById("loading-sort");
+        if(loading) {
+            loading.remove();
+        }
+
         const sortWrapper = document.createElement("div");
         const sortLabel = document.createElement("div");
         const sortGPABox = document.createElement("select");
@@ -1102,6 +1145,22 @@
         });
     };
 
+    const setSortLoad = () => {
+        const loading = document.createElement("img");
+        loading.src = chrome.runtime.getURL("assets/ajax-loader.gif");
+        loading.style.float = "inherit";
+        loading.style.paddingRight = "72px";
+        loading.style.marginTop = "5px";
+        loading.id = "loading-sort";
+        loading.alt = "loading...";
+
+        const expdSections = document.getElementById("show-all-sections-button-wrapper");
+        const introRow = expdSections.parentNode;
+        introRow.className = "three columns";
+        introRow.previousElementSibling.className = "eight columns";
+        introRow.insertBefore(loading, expdSections);
+    };
+
     chrome.runtime.onMessage.addListener(async (obj, sender, response) => {
 
         // RMP took down their old API and replaced to GraphQL
@@ -1125,6 +1184,8 @@
             });
 
             setPopUP();
+            setSortLoad();
+            termId = obj.termId;
             
             // Course Iteration
             courses = document.getElementsByClassName("course");
